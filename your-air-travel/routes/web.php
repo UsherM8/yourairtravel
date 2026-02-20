@@ -2,7 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Admin\ManageDeals;
-use App\Livewire\Admin\CreateDeal; // <--- 1. DEZE IMPORT IS CRUCIAAL!
+use App\Livewire\Admin\CreateDeal;
+use App\Livewire\Admin\EditDeal;
+use App\Livewire\Public\ShowDeal;
+
+Route::view('/', 'welcome');
+
+Route::get('/deal/{deal}', ShowDeal::class)->name('public.deal.show');
 
 Route::view('/', 'welcome');
 
@@ -13,13 +19,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::view('profile', 'profile')->name('profile');
 
-    // --- ADMIN ROUTES ---
-
-    // 1. Het overzicht (De lijst)
+    //ADMIN ROUTES
     Route::get('/admin/deals', ManageDeals::class)->name('admin.deals');
-
-    // 2. De aanmaak pagina (Het formulier) <--- DEZE MISTE JE!
     Route::get('/admin/deals/create', CreateDeal::class)->name('admin.deals.create');
+    Route::get('/admin/deals/{deal}/edit', EditDeal::class)->name('admin.deals.edit');
+
 });
 
 require __DIR__.'/auth.php';
