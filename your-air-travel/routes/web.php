@@ -7,7 +7,9 @@ use App\Livewire\Admin\EditDeal;
 use App\Livewire\Public\ShowDeal;
 
 Route::view('/', 'welcome');
-
+Route::get('/zoeken', function () {
+    return view('search-results');
+})->name('search.results');
 Route::get('/deal/{deal}', ShowDeal::class)->name('public.deal.show');
 
 Route::view('/', 'welcome');

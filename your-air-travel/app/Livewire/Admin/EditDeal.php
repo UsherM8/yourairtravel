@@ -56,9 +56,9 @@ protected $rules = [
         'discounted_price' => 'nullable|numeric',
         'referral_url' => 'required|url',
 
-        // HIER ZIJN DE NIEUWE REGELS:
-        'images' => 'max:10',             // Maximaal 10 foto's in totaal selecteren
-        'images.*' => 'image|max:71680',  // Maximaal 70MB (71680 KB) per stuk!
+        // LET OP: Hier moet 'new_images' staan, NIET 'images'
+        'new_images' => 'max:10',
+        'new_images.*' => 'image|max:71680',
     ];
     public function mount(Deal $deal)
     {
