@@ -28,9 +28,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=HIER_JOUW_PROJECT_KEY
-            -Dsonar.organization=HIER_JOUW_ORGANISATIE_KEY
-            -Dsonar.sources=app,resources
+            -Dsonar.projectKey=UsherM8_yourairtravel
+            -Dsonar.organization=usherm8
+            -Dsonar.sources=.
             -Dsonar.php.exclusions=vendor/**,tests/**
-            -Dsonar.verbose=false
           projectBaseDir: .
