@@ -88,6 +88,7 @@ protected $rules = [
             'return_date' => $this->return_date ?: null,
             'tags' => $this->tags,
             'is_active' => true,
+            'user_id' => auth()->id()
         ]);
 
         if (!empty($this->images)) {

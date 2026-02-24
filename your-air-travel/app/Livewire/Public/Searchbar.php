@@ -111,7 +111,7 @@ class Searchbar extends Component
         $this->calculateCount();
     }
 
-    public function calculateCount()
+public function calculateCount()
     {
         $query = Deal::where('is_active', true);
 
@@ -121,7 +121,7 @@ class Searchbar extends Component
         if ($this->min_budget > 0) {
             $query->where('discounted_price', '>=', $this->min_budget);
         }
-        if ($this->max_budget < 2000) {
+        if ($this->max_budget < 2000) { // Zorg dat dit overeenkomt met je slider max
             $query->where('discounted_price', '<=', $this->max_budget);
         }
 
@@ -151,6 +151,11 @@ class Searchbar extends Component
 
         if (!empty($this->datum_van)) $query->whereDate('departure_date', '>=', $this->datum_van);
         if (!empty($this->datum_tot)) $query->whereDate('departure_date', '<=', $this->datum_tot);
+
+        // NIEUW & SUPERSNEL: Direct zoeken in de nieuwe database kolom!
+        if (!empty($this->reisduren)) {
+            $query->whereIn('duration_days', $this->reisduren);
+        }
 
         $this->resultCount = $query->count();
     }

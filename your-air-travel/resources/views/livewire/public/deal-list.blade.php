@@ -34,13 +34,11 @@
                 wire:click="loadMore"
                 class="px-10 py-4 bg-white border-2 border-[#2596be] text-[#2596be] font-black tracking-wide rounded-2xl hover:bg-[#2596be] hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg flex items-center group"
             >
-                {{-- Tekst als hij NIET aan het laden is --}}
                 <span wire:loading.remove wire:target="loadMore" class="flex items-center">
                     Laad meer deals
                     <svg class="w-5 h-5 ml-2 transform group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
                 </span>
 
-                {{-- Tekst (en spinner icoon) als hij WEL aan het laden is --}}
                 <span wire:loading wire:target="loadMore" class="flex items-center">
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

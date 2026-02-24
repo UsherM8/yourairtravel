@@ -52,7 +52,7 @@
                     </div>
                 </div>
 
-                {{-- SECTIE 2: VLUCHT DETAILS (SLIM & CASCADING) --}}
+                {{-- SECTIE 2: VLUCHT DETAILS --}}
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -60,7 +60,6 @@
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
-
                         {{-- Vertrek --}}
                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-inner">
                             <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Vertrek (Van)</span>
@@ -119,15 +118,14 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
-                    {{-- Airline & Datums --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    {{-- Airline, Datums & Aantal Dagen (4 KOLOMMEN) --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Luchtvaartmaatschappij</label>
+                            <label class="block text-sm font-medium text-gray-700">Maatschappij</label>
                             <select wire:model="airline" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Kies maatschappij...</option>
+                                <option value="">Kies...</option>
                                 <option value="KLM">KLM</option>
                                 <option value="Transavia">Transavia</option>
                                 <option value="Ryanair">Ryanair</option>
@@ -141,15 +139,28 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Vertrekdatum</label>
                             <input type="date" wire:model="departure_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            @error('departure_date') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 text-blue-600">Terugkomstdatum</label>
+                            <label class="block text-sm font-medium text-gray-700">Terugkomstdatum</label>
                             <input type="date" wire:model="return_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            @error('return_date') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 text-blue-600">Reisduur label</label>
+                            <select wire:model="duration_days" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-blue-50">
+                                <option value="">Kies...</option>
+                                @for ($i = 1; $i <= 14; $i++)
+                                    <option value="{{ $i }}">{{ $i }} {{ $i == 1 ? 'dag' : 'dagen' }}</option>
+                                @endfor
+                                <option value="15plus">15+ dagen</option>
+                            </select>
+                            @error('duration_days') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
                     </div>
                 </div>
 
-                {{-- NIEUW: SECTIE TAGS --}}
+                {{-- SECTIE TAGS --}}
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
@@ -180,7 +191,8 @@
                             file:bg-blue-50 file:text-blue-700
                             hover:file:bg-blue-100
                         "/>
-<p class="text-xs text-gray-500 mt-2">Selecteer maximaal <strong class="text-gray-700">10 foto's</strong> tegelijk. Max <strong class="text-gray-700">70MB</strong> per foto.</p>                    </div>
+                        <p class="text-xs text-gray-500 mt-2">Selecteer maximaal <strong class="text-gray-700">10 foto's</strong> tegelijk. Max <strong class="text-gray-700">70MB</strong> per foto.</p>
+                    </div>
                     @error('images.*') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
 
                     {{-- PREVIEW GRID --}}

@@ -38,6 +38,10 @@
                 {{-- 2. DESKTOP NAVIGATIE --}}
                 <div class="hidden lg:flex items-center space-x-8 text-sm font-bold text-gray-700 h-full">
 
+                 {{-- a1. Blogs (NU WERKEND) --}}
+                    <a href="{{ route('search.results', ['vakantietypes' => ['lastminute']]) }}" class="hover:text-[#2596be] transition-colors flex items-center h-full">
+                    <span class="mr-2 font-black"></span> Last Minutes</a>
+
                     {{-- A. Landen (HET NIEUWE DOORZOEKBARE MEGA MENU!) --}}
                     <div x-data="countrySearchMenu()" @mouseleave="open = false; search = ''" class="relative flex items-center h-full cursor-pointer">
                         <div @mouseover="open = true" class="flex items-center hover:text-[#2596be] transition-colors h-full">
@@ -159,8 +163,8 @@
                     {{-- D. Vliegtickets --}}
                     <a href="{{ route('search.results') }}" class="hover:text-[#2596be] transition-colors flex items-center h-full">Vliegtickets</a>
 
-                    {{-- E. Blogs --}}
-                    <a href="#" class="hover:text-[#2596be] transition-colors flex items-center h-full">Blogs</a>
+                    {{-- E. Blogs (NU WERKEND) --}}
+                    <a href="{{ route('public.blogs') }}" class="hover:text-[#2596be] transition-colors flex items-center h-full">Blogs</a>
 
                     {{-- F. Over Ons --}}
                     <a href="#" class="flex items-center h-full text-[#2596be] hover:text-[#e5764b] transition-colors group">
@@ -168,17 +172,7 @@
                         Over Ons
                     </a>
                 </div>
-
-                {{-- 3. RECHTER KANT (Dashboard / Inlog knop) --}}
-                <div class="hidden lg:flex items-center space-x-4">
-                    @auth
-                        <a href="{{ url('/dashboard') }}" class="px-5 py-2.5 bg-[#e5764b] hover:bg-[#d4653a] text-white font-bold rounded-xl transition-colors text-sm shadow-md hover:shadow-lg">
-                            Mijn Dashboard
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-sm font-bold text-gray-600 hover:text-[#2596be] transition-colors">Log in</a>
-                    @endauth
-                </div>
+                <div> </div>
 
             </div>
         </div>

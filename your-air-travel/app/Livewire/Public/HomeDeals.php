@@ -9,25 +9,26 @@ class HomeDeals extends Component
 {
     public function render()
     {
-        // Haal max 5 Last-minutes op
-        $lastMinutes = Deal::where('is_active', true)
-            ->whereJsonContains('tags', 'Last-Minute')
-            ->latest()->take(5)->get();
+        // We zoeken op beide varianten (met en zonder streepje) voor de zekerheid
+        $zonDeals = Deal::where('is_active', true)
+            ->where(function($q) {
+                $q->whereJsonContains('tags', 'Zonvakantie')
+                  ->orWhere('tags', 'like', '%Zonvakantie%');
+            })
+            ->latest()->take(4)->get();
 
-        // Haal max 5 Zonvakanties op
-        $zonvakanties = Deal::where('is_active', true)
-            ->whereJsonContains('tags', 'Zonvakantie')
-            ->latest()->take(5)->get();
-
-        // Haal max 5 willekeurige 'Vluchten' (deals met een specifieke airline) op
-        $vluchten = Deal::where('is_active', true)
-            ->whereNotNull('airline')
-            ->latest()->take(5)->get();
+        $lastMinuteDeals = Deal::where('is_active', true)
+            ->where(function($q) {
+                $q->whereJsonContains('tags', 'Last-Minute') // Met streepje
+                  ->orWhereJsonContains('tags', 'Last Minute') // Met spatie
+                  ->orWhere('tags', 'like', '%Last-Minute%')
+                  ->orWhere('tags', 'like', '%Last Minute%');
+            })
+            ->latest()->take(4)->get();
 
         return view('livewire.public.home-deals', [
-            'lastMinutes' => $lastMinutes,
-            'zonvakanties' => $zonvakanties,
-            'vluchten' => $vluchten,
+            'zonDeals' => $zonDeals,
+            'lastMinuteDeals' => $lastMinuteDeals,
         ]);
     }
 }

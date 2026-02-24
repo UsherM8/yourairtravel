@@ -1,23 +1,40 @@
 @php
-    // We pakken het nummer van de loop (0, 1, 2, etc.)
+    // --- 1. PRIJS LOGICA ---
+    $normalePrijs = floatval($deal->price ?? 0);
+    $kortingsPrijs = floatval($deal->discounted_price ?? 0);
+    $hasDiscount = ($kortingsPrijs > 0 && $kortingsPrijs < $normalePrijs);
+    $currentPrice = $hasDiscount ? $kortingsPrijs : $normalePrijs;
+
+    // --- 2. DYNAMISCH GRID PATROON (Middel & Klein) ---
     $idx = $index ?? 0;
 
-    // We maximeren de vertraging op groepjes van 6, anders laadt kaartje #30 pas na 5 seconden in!
+    if (isset($isHomepage) && $isHomepage) {
+        // Patroon voor Homepage: Middel, Klein, Klein, Middel, etc.
+        $sizeClass = match($idx % 4) {
+            0 => 'md:col-span-2 lg:col-span-2 h-[300px]', // Middel (breed)
+            1 => 'md:col-span-1 lg:col-span-1 h-[300px]', // Klein
+            2 => 'md:col-span-1 lg:col-span-1 h-[300px]', // Klein
+            3 => 'md:col-span-2 lg:col-span-2 h-[300px]', // Middel (breed)
+            default => 'col-span-1 h-[300px]'
+        };
+    } else {
+        // Standaard Bento Grid voor de zoekpagina (zoals we hadden)
+        $sizeClass = match($idx % 6) {
+            0 => 'md:col-span-2 lg:col-span-2 lg:row-span-2 h-[350px] lg:h-[500px]',
+            1 => 'md:col-span-1 lg:col-span-1 h-[250px]',
+            2 => 'md:col-span-1 lg:col-span-1 h-[250px]',
+            3 => 'md:col-span-1 lg:col-span-1 h-[250px] lg:h-[300px]',
+            4 => 'md:col-span-1 lg:col-span-2 h-[250px] lg:h-[300px]',
+            5 => 'md:col-span-2 lg:col-span-3 h-[250px] lg:h-[350px]',
+            default => 'md:col-span-1 lg:col-span-1 h-[250px]'
+        };
+    }
+
     $delay = ($idx % 6) * 150;
-
-    // 4 Verschillende, speelse inlaad-animaties
-    $directions = [
-        'translate-y-16 opacity-0',                    // 1: Komt recht van onder
-        'translate-x-12 translate-y-12 opacity-0',     // 2: Schuift vanuit rechtsonder
-        '-translate-x-12 translate-y-12 opacity-0',    // 3: Schuift vanuit linksonder
-        'scale-90 translate-y-8 opacity-0'             // 4: Begint klein en groeit
-    ];
-
-    // Kies de animatie op basis van het nummer
+    $directions = ['translate-y-8 opacity-0', 'scale-95 opacity-0', '-translate-x-8 opacity-0', 'translate-x-8 opacity-0'];
     $startAnimation = $directions[$idx % 4];
 @endphp
 
-{{-- Alpine.js handelt de timer en de animatie af --}}
 <div x-data="{ show: false }"
      x-init="setTimeout(() => show = true, {{ $delay }})"
      x-show="show"
@@ -25,93 +42,56 @@
      x-transition:enter-start="{{ $startAnimation }}"
      x-transition:enter-end="translate-x-0 translate-y-0 scale-100 opacity-100"
      style="display: none;"
-     class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group flex flex-col h-full relative block">
+     class="{{ $sizeClass }} relative rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 group block">
 
-    {{-- Onzichtbare link voor de hele kaart --}}
-    <a href="{{ route('public.deal.show', $deal->id) }}" class="absolute inset-0 z-10">
+    {{-- Algemene onzichtbare link over de hele foto --}}
+    <a href="{{ route('public.deal.show', $deal->id) }}" wire:navigate class="absolute inset-0 z-30">
         <span class="sr-only">Bekijk details van {{ $deal->title }}</span>
     </a>
 
-    {{-- Korting Badge --}}
-    @if($deal->price > $deal->discounted_price)
-        <div class="absolute top-5 left-5 z-20 bg-[#e5764b] text-white text-sm font-black px-4 py-2 rounded-full shadow-lg transform -rotate-2 pointer-events-none">
-            -{{ round((($deal->price - $deal->discounted_price) / $deal->price) * 100) }}%
+    {{-- DE VOLLEDIGE AFBEELDING --}}
+    @if(isset($deal->primaryImage))
+        <img src="{{ asset('storage/' . $deal->primaryImage->path) }}" alt="{{ $deal->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s] ease-in-out">
+    @elseif(!empty($deal->image_path))
+        <img src="{{ asset('storage/' . $deal->image_path) }}" alt="{{ $deal->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s] ease-in-out">
+    @elseif(isset($deal->images) && count($deal->images) > 0)
+        <img src="{{ asset('storage/' . ($deal->images[0]->path ?? $deal->images[0]->image_path)) }}" alt="{{ $deal->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s] ease-in-out">
+    @else
+        <div class="absolute inset-0 w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 font-bold italic">
+            ✈️ YourAirTravel
         </div>
     @endif
 
-    {{-- De Afbeelding --}}
-    <div class="relative h-72 overflow-hidden bg-gray-200 pointer-events-none">
-        @if($deal->primaryImage)
-            <img src="{{ asset('storage/' . $deal->primaryImage->path) }}" alt="{{ $deal->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-in-out">
-        @else
-            <div class="w-full h-full flex items-center justify-center text-gray-400">
-                <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            </div>
-        @endif
+    {{-- Subtielere donkere overloop --}}
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent z-10 pointer-events-none"></div>
 
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-
-        <div class="absolute bottom-5 left-5 right-5 text-white">
-            <div class="flex items-center text-sm font-semibold opacity-90 mb-2">
-                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                {{ $deal->arrival_city }}
-            </div>
-            <h3 class="text-2xl font-bold leading-tight line-clamp-2">{{ $deal->title }}</h3>
+    {{-- Korting Badge (Rechts bovenaan) --}}
+    @if($hasDiscount && $normalePrijs > 0)
+        <div class="absolute top-4 right-4 z-20 bg-[#e5764b] text-white text-xs font-black px-3 py-1.5 rounded-xl shadow-lg transform rotate-2">
+            -{{ round((($normalePrijs - $kortingsPrijs) / $normalePrijs) * 100) }}%
         </div>
-    </div>
+    @endif
 
-    {{-- De Inhoud / Info --}}
-    <div class="p-7 flex flex-col flex-grow">
+    {{-- CONTENT: Prijs BOVEN, Titel ERONDER --}}
+    <div class="absolute bottom-0 left-0 right-0 p-4 md:p-5 z-20 flex flex-col justify-end pointer-events-none">
 
-        <div class="flex justify-between items-center mb-4 text-sm text-gray-600 pointer-events-none">
-            <div class="flex items-center font-medium bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg">
-                {{ $deal->departure_city }}
-                <svg class="w-3.5 h-3.5 mx-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></path></svg>
-                {{ $deal->arrival_city }}
-            </div>
-            @if($deal->airline)
-                <div class="font-bold text-gray-400 uppercase tracking-wider text-xs">{{ $deal->airline }}</div>
-            @endif
-        </div>
+        <div class="flex flex-col gap-2">
 
-        {{-- Tags --}}
-        @if(!empty($deal->tags) && is_array($deal->tags))
-            <div class="flex flex-wrap gap-1.5 mb-4 pointer-events-none">
-                @foreach(array_slice($deal->tags, 0, 2) as $tag)
-                    <span class="px-2 py-0.5 bg-[#2596be]/10 text-[#2596be] text-[10px] font-bold uppercase tracking-wider rounded border border-[#2596be]/20">
-                        {{ $tag }}
-                    </span>
-                @endforeach
-                @if(count($deal->tags) > 2)
-                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-bold uppercase tracking-wider rounded border border-gray-200">
-                        +{{ count($deal->tags) - 2 }}
-                    </span>
+            {{-- Prijs (Nu netjes BOVEN de titel) --}}
+            <div class="inline-flex items-baseline self-start gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 shadow-xl">
+                <span class="text-[10px] text-white/80 font-bold uppercase tracking-wider">Vanaf</span>
+                <span class="text-xl md:text-2xl font-black text-[#2596be] drop-shadow-md">€{{ $currentPrice }}</span>
+
+                @if($hasDiscount)
+                    <span class="text-xs text-white/50 line-through font-medium ml-1">€{{ $normalePrijs }}</span>
                 @endif
             </div>
-        @endif
 
-        @if($deal->departure_date)
-            <div class="text-sm text-gray-500 mb-6 flex items-center font-medium pointer-events-none">
-                <svg class="w-4 h-4 mr-2 text-[#2596be]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                Vertrek: {{ \Carbon\Carbon::parse($deal->departure_date)->format('d M Y') }}
-            </div>
-        @endif
+            {{-- Titel (Eronder) --}}
+            <h3 class="text-lg md:text-xl font-bold text-white leading-snug drop-shadow-md line-clamp-2">
+                {{ $deal->title }}
+            </h3>
 
-        <div class="mt-auto pt-5 border-t border-gray-100 flex items-center justify-between relative">
-            <div class="pointer-events-none">
-                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block mb-0.5">Vanaf</span>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-black text-[#2596be]">€{{ $deal->discounted_price }}</span>
-                    @if($deal->price > $deal->discounted_price)
-                        <span class="text-base text-gray-400 line-through font-semibold">€{{ $deal->price }}</span>
-                    @endif
-                </div>
-            </div>
-
-            <a href="{{ $deal->referral_url }}" target="_blank" rel="noopener noreferrer" class="relative z-20 px-6 py-3 bg-[#e5764b] text-white text-sm font-bold rounded-xl hover:bg-[#d4653a] transition-colors shadow-md hover:shadow-lg flex items-center">
-                Bekijk
-                <svg class="w-4 h-4 ml-1.5 transform group-hover:translate-x-1.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></path></svg>
-            </a>
         </div>
     </div>
 </div>

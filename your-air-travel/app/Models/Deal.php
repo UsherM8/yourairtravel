@@ -12,19 +12,18 @@ class Deal extends Model
 protected $fillable = [
     'title',
     'description',
-    'price',
-    'discounted_price',
     'departure_city',
-    'departure_country',
     'arrival_city',
     'arrival_country',
+    'price',
+    'discounted_price',
     'airline',
     'departure_date',
     'return_date',
+    'duration_days',
+    'tags',
     'referral_url',
-    'is_active',
-    'click_count',
-    'tags'
+    'is_active'
 ];
 
 protected $casts = [
@@ -40,6 +39,10 @@ protected $casts = [
     public function primaryImage()
     {
         return $this->hasOne(DealImage::class)->where('is_primary', true);
+    }
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
 }

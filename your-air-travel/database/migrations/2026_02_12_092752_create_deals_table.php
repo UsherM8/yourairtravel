@@ -12,33 +12,34 @@ return new class extends Migration
 public function up(): void
 {
     Schema::create('deals', function (Blueprint $table) {
-        // 1. Marketing Info (De "Deal" kant)
         $table->id();
-        $table->string('title');          // Bijv: "Weekendje Barcelona"
-        $table->text('description');      // Korte wervende tekst
-        $table->string('referral_url');   // De link naar Skyscanner/Transavia
-        $table->integer('click_count')->default(0);
+        $table->string('title');
+        $table->text('description')->nullable();
+        $table->string('departure_city');
+        $table->string('arrival_city');
+        $table->string('arrival_country');
+        $table->decimal('price', 8, 2);
+        $table->decimal('discounted_price', 8, 2)->nullable();
+        $table->string('airline')->nullable();
+        $table->date('departure_date')->nullable();
 
-        // 2. Vlucht Info (De "Snapshot" kant)
-        // We slaan hier alleen op wat nodig is voor de "Card" op de site
-        $table->string('airline')->nullable();        // Bijv: "KLM"
-        $table->string('departure_country')->nullable();
-        $table->string('departure_city');             // Bijv: "Amsterdam"
-        $table->string('arrival_country')->nullable();
-        $table->string('arrival_city');               // Bijv: "Barcelona"
-        $table->decimal('price', 8, 2);               // De prijs op moment van vinden
-        $table->decimal('discounted_price',8,2);
-        $table->dateTime('departure_date')->nullable(); // Handig voor sorteren'
+        // DEZE REGEL IS CRUCIAAL EN ONTBRRAK WAARSCHIJNLIJK:
+        $table->date('return_date')->nullable();
 
-        // 3. Status
+        // Nu we hier toch zijn, zetten we deze er ook direct in,
+        // dan heb je dat aparte tweede migratiebestand (add_duration_days...) niet meer nodig!
+        $table->string('duration_days')->nullable();
+
+        $table->json('tags')->nullable();
         $table->boolean('is_active')->default(true);
+        $table->string('referral_url')->nullable();
         $table->timestamps();
     });
 }
 
     /**
      * Reverse the migrations.
-     */ 
+     */
     public function down(): void
     {
         Schema::dropIfExists('deals');
