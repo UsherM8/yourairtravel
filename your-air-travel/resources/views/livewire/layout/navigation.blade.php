@@ -23,21 +23,26 @@ new class extends Component
 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    {{-- Dashboard Link --}}
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+    {{-- Dashboard Link --}}
+    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
+        {{ __('Dashboard') }}
+    </x-nav-link>
 
-                    {{-- Manage Deals Link --}}
-                    <x-nav-link :href="route('admin.deals')" :active="request()->routeIs('admin.deals*')" wire:navigate>
-                        {{ __('Manage Deals') }}
-                    </x-nav-link>
+    {{-- Manage Deals Link --}}
+    <x-nav-link :href="route('admin.deals')" :active="request()->routeIs('admin.deals*')" wire:navigate>
+        {{ __('Manage Deals') }}
+    </x-nav-link>
 
-                    {{-- Manage Blogs Link (NIEUW) --}}
-                    <x-nav-link :href="route('admin.blogs.index')" :active="request()->routeIs('admin.blogs.*')" wire:navigate>
-                        {{ __('Manage Blogs') }}
-                    </x-nav-link>
-                </div>
+    {{-- Homepage Flash Deals Link (NIEUW) --}}
+    <x-nav-link :href="route('admin.instant-deals')" :active="request()->routeIs('admin.instant-deals')" wire:navigate>
+        {{ __('Flash Deals') }}
+    </x-nav-link>
+
+    {{-- Manage Blogs Link --}}
+    <x-nav-link :href="route('admin.blogs.index')" :active="request()->routeIs('admin.blogs.*')" wire:navigate>
+        {{ __('Manage Blogs') }}
+    </x-nav-link>
+</div>
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">

@@ -23,6 +23,7 @@ protected $fillable = [
     'duration_days',
     'tags',
     'referral_url',
+    'instant_deal_slot',
     'is_active'
 ];
 

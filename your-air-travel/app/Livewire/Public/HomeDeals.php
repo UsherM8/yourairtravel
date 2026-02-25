@@ -9,6 +9,10 @@ class HomeDeals extends Component
 {
     public function render()
     {
+        $instantDeals = Deal::whereNotNull('instant_deal_slot')
+            ->orderBy('instant_deal_slot')
+            ->get();
+
         // We zoeken op beide varianten (met en zonder streepje) voor de zekerheid
         $zonDeals = Deal::where('is_active', true)
             ->where(function($q) {
@@ -29,6 +33,7 @@ class HomeDeals extends Component
         return view('livewire.public.home-deals', [
             'zonDeals' => $zonDeals,
             'lastMinuteDeals' => $lastMinuteDeals,
+            'instantDeals' => $instantDeals
         ]);
     }
 }

@@ -166,8 +166,8 @@
                     {{-- E. Blogs (NU WERKEND) --}}
                     <a href="{{ route('public.blogs') }}" class="hover:text-[#2596be] transition-colors flex items-center h-full">Blogs</a>
 
-                    {{-- F. Over Ons --}}
-                    <a href="#" class="flex items-center h-full text-[#2596be] hover:text-[#e5764b] transition-colors group">
+                    {{-- F. Over Ons (AANGEPAST) --}}
+                    <a href="{{ route('over-ons') }}" class="flex items-center h-full text-[#2596be] hover:text-[#e5764b] transition-colors group">
                         <svg class="w-4 h-4 mr-1.5 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Over Ons
                     </a>
@@ -203,10 +203,11 @@
                 <div>
                     <h4 class="font-bold text-gray-900 mb-4">Over Ons</h4>
                     <ul class="space-y-2 text-gray-500 font-medium text-sm">
-                        <li><a href="#" class="hover:text-[#2596be] transition-colors">Over Ons</a></li>
-                        <li><a href="#" class="hover:text-[#2596be] transition-colors">Contact</a></li>
-                        <li><a href="#" class="hover:text-[#2596be] transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-[#2596be] transition-colors">Algemene Voorwaarden</a></li>
+                        {{-- AANGEPAST --}}
+                        <li><a href="{{ route('over-ons') }}" class="hover:text-[#2596be] transition-colors">Over Ons</a></li>
+                        <li><a href="{{ route('contact') }}" class="hover:text-[#2596be] transition-colors">Contact</a></li>
+                        <li><a href="{{ route('privacy') }}" class="hover:text-[#2596be] transition-colors">Privacy Policy</a></li>
+                        <li><a href="{{ route('voorwaarden') }}" class="hover:text-[#2596be] transition-colors">Algemene Voorwaarden</a></li>
                     </ul>
                 </div>
             </div>
