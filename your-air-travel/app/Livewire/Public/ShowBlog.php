@@ -10,10 +10,13 @@ class ShowBlog extends Component
     public Blog $blog;
 
     public function mount($id)
-    {
-        // Haal de blog op op basis van ID, en check of hij actief is
-        $this->blog = Blog::where('is_active', true)->findOrFail($id);
-    }
+{
+    $this->blog = \App\Models\Blog::findOrFail($id);
+
+    // TEL EEN WEERGAVE OP
+    // We gebruiken increment, dat is supersnel en veilig
+    $this->blog->increment('click_count');
+}
 
     public function render()
     {

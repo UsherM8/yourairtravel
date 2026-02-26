@@ -125,8 +125,6 @@
                     </p>
                 </div>
 
-                {{-- FOTOGALERIJ IS HIER VERWIJDERD (alles zit nu in de grote slider bovenaan) --}}
-
             </div>
 
             {{-- RECHTERKANT: Boekingsbox (1/3 breedte) --}}
@@ -181,25 +179,15 @@
                             <div class="flex items-center text-gray-600">
                                 <span class="w-8 flex justify-center text-xl">📅</span>
                                 <div>
-                                    <p class="text-xs text-gray-400">Vertrekdatum</p>
+                                    <p class="text-xs text-gray-400">Indicatie vertrek</p>
                                     <p class="font-semibold">{{ \Carbon\Carbon::parse($deal->departure_date)->format('d M Y') }}</p>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if($deal->return_date)
-                            <div class="flex items-center text-gray-600">
-                                <span class="w-8 flex justify-center text-xl">🔙</span>
-                                <div>
-                                    <p class="text-xs text-gray-400">Terugkomst</p>
-                                    <p class="font-semibold">{{ \Carbon\Carbon::parse($deal->return_date)->format('d M Y') }}</p>
                                 </div>
                             </div>
                         @endif
                     </div>
 
-                    {{-- De ultieme klik-knop --}}
-                    <a href="{{ $deal->referral_url }}" target="_blank" rel="noopener noreferrer" class="w-full py-4 bg-[#e5764b] hover:bg-[#d4653a] text-white font-black text-lg rounded-xl shadow-lg shadow-[#e5764b]/30 transition-all transform hover:-translate-y-1 flex items-center justify-center">
+                    {{-- DE AANGEPASTE ULTIEME KLIK-KNOP --}}
+                    <a href="{{ route('public.deal.book', $deal->id) }}" target="_blank" rel="noopener noreferrer" class="w-full py-4 bg-[#e5764b] hover:bg-[#d4653a] text-white font-black text-lg rounded-xl shadow-lg shadow-[#e5764b]/30 transition-all transform hover:-translate-y-1 flex items-center justify-center">
                         Bekijk & Boek Deal
                         <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>

@@ -9,7 +9,9 @@ class HomeDeals extends Component
 {
     public function render()
     {
+        // GEFIXT: 'is_active', true toegevoegd zodat gearchiveerde instant deals verborgen blijven!
         $instantDeals = Deal::whereNotNull('instant_deal_slot')
+            ->where('is_active', true)
             ->orderBy('instant_deal_slot')
             ->get();
 

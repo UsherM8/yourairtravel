@@ -14,18 +14,35 @@ class ManageDeals extends Component
     public $search = '';
     public $filter_author = '';
     public $filter_date = '';
-    public $sort = 'newest'; // NIEUW: Standaard sortering op nieuwste
+    public $sort = 'newest';
+
+    // NIEUW: De variabele voor het status filter
+    public $filter_status = '';
 
     public function updatingSearch() { $this->resetPage(); }
     public function updatingFilterAuthor() { $this->resetPage(); }
     public function updatingFilterDate() { $this->resetPage(); }
-    public function updatingSort() { $this->resetPage(); } // Reset pagina bij sorteren
+    public function updatingSort() { $this->resetPage(); }
+
+    // NIEUW: Reset de pagina als je wisselt tussen Actief / Archief
+    public function updatingFilterStatus() { $this->resetPage(); }
 
     public function deleteDeal($id)
     {
         $deal = Deal::findOrFail($id);
         $deal->delete();
         session()->flash('message', 'Deal succesvol verwijderd!');
+    }
+
+    public function toggleArchive($id)
+    {
+        $deal = Deal::findOrFail($id);
+
+        // Draait de status om: actief wordt inactief (archief), en andersom
+        $deal->is_active = !$deal->is_active;
+        $deal->save();
+
+        session()->flash('message', 'De status van de deal is succesvol aangepast!');
     }
 
     public function render()
@@ -56,18 +73,31 @@ class ManageDeals extends Component
             }
         }
 
-        // 4. NIEUW: SORTERING
+        // 4. NIEUW: Status filter (Actief / Archief)
+        if ($this->filter_status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($this->filter_status === 'archived') {
+            $query->where('is_active', false);
+        }
+
+        // 5. DE GEPERFECTIONEERDE SORTERING (Stabiel & Bug-vrij)
         if ($this->sort === 'oldest') {
-            $query->oldest();
+            $query->oldest()->orderBy('id');
         } elseif ($this->sort === 'price_asc') {
-            // Sorteer op prijs (Laag naar Hoog), houdt rekening met kortingen!
-            $query->orderByRaw('(CASE WHEN discounted_price > 0 THEN discounted_price ELSE price END) ASC');
+            $query->orderByRaw('(CASE WHEN discounted_price > 0 THEN discounted_price ELSE price END) ASC')->latest('id');
         } elseif ($this->sort === 'price_desc') {
-            // Sorteer op prijs (Hoog naar Laag), houdt rekening met kortingen!
-            $query->orderByRaw('(CASE WHEN discounted_price > 0 THEN discounted_price ELSE price END) DESC');
+            $query->orderByRaw('(CASE WHEN discounted_price > 0 THEN discounted_price ELSE price END) DESC')->latest('id');
+        } elseif ($this->sort === 'clicks_desc') {
+            $query->orderByRaw('COALESCE(click_count, 0) DESC')->latest('id');
+        } elseif ($this->sort === 'clicks_asc') {
+            $query->orderByRaw('COALESCE(click_count, 0) ASC')->latest('id');
+        } elseif ($this->sort === 'conversions_desc') {
+            $query->orderByRaw('COALESCE(outbound_clicks, 0) DESC')->latest('id');
+        } elseif ($this->sort === 'conversions_asc') {
+            $query->orderByRaw('COALESCE(outbound_clicks, 0) ASC')->latest('id');
         } else {
             // Standaard: Nieuwste eerst
-            $query->latest();
+            $query->latest()->orderByDesc('id');
         }
 
         $deals = $query->paginate(10);

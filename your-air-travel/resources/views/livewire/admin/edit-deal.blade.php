@@ -1,6 +1,5 @@
 <div class="py-12">
     <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-8">
 
             {{-- HEADER MET TERUG KNOP --}}
@@ -16,12 +15,13 @@
 
             <form wire:submit.prevent="updateDeal" class="space-y-8">
 
-                {{-- SECTIE 1: DE DEAL (PRIJS & TITEL) --}}
+                {{-- SECTIE 1: MARKETING & PRIJS --}}
                 <div class="bg-blue-50 p-6 rounded-lg border border-blue-100">
                     <h3 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Marketing & Prijs
                     </h3>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="col-span-2">
                             <label class="block text-sm font-medium text-gray-700">Pakkende Titel</label>
@@ -96,6 +96,13 @@
                                         @endforeach
                                     </select>
                                 </div>
+
+                                {{-- DIT IS HET ONTBREKENDE CONTINENT VELD --}}
+                                <div>
+                                    <label class="text-xs text-gray-500">Continent</label>
+                                    <input type="text" wire:model="arrival_continent" readonly placeholder="Wordt automatisch ingevuld..." class="block w-full border-gray-200 bg-gray-100 text-[#2596be] font-bold rounded-md text-sm cursor-not-allowed">
+                                </div>
+
                                 <div>
                                     <label class="text-xs text-gray-500">Stad</label>
                                     <select wire:model="arrival_city" class="block w-full border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:text-gray-400" @if(!$arrival_country) disabled @endif>
@@ -113,12 +120,12 @@
                         </div>
                     </div>
 
-                    {{-- Airline & Datums --}}
+                    {{-- Airline, Datums & Reisduur --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Luchtvaartmaatschappij</label>
+                            <label class="block text-sm font-medium text-gray-700">Maatschappij</label>
                             <select wire:model="airline" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Kies maatschappij...</option>
+                                <option value="">Kies...</option>
                                 <option value="KLM">KLM</option>
                                 <option value="Transavia">Transavia</option>
                                 <option value="Ryanair">Ryanair</option>
@@ -134,8 +141,9 @@
                             <input type="date" wire:model="departure_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 text-blue-600">Terugkomstdatum</label>
-                            <input type="date" wire:model="return_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <label class="block text-sm font-medium text-gray-700">Duur (in dagen)</label>
+                            <input type="number" wire:model="duration_days" min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="bijv. 8">
+                            @error('duration_days') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
                     </div>
                 </div>
@@ -205,15 +213,32 @@
                 </div>
 
                 {{-- FOOTER ACTIES --}}
-                <div class="pt-6 flex items-center justify-end space-x-3">
-                    <div wire:loading wire:target="new_images" class="mr-auto text-sm text-gray-500 italic">
-                        <span class="inline-flex animate-pulse">Nieuwe foto's verwerken...</span>
+                <div class="pt-6 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+
+                    {{-- Linker Kant: Extra Acties (Archiveren) & Laad status --}}
+                    <div class="flex items-center space-x-4 w-full md:w-auto">
+                        <button type="button" wire:click="toggleArchive" wire:confirm="Weet je zeker dat je de status van deze deal wilt aanpassen?" class="px-4 py-2 border rounded-md font-bold transition focus:outline-none focus:ring-2 focus:ring-offset-2 {{ isset($is_active) && !$is_active ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 focus:ring-green-500' : 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 focus:ring-orange-500' }}">
+                            @if(isset($is_active) && !$is_active)
+                                Activeer Deal ✅
+                            @else
+                                Archiveer Deal 📦
+                            @endif
+                        </button>
+
+                        <div wire:loading wire:target="new_images" class="text-sm text-gray-500 italic">
+                            <span class="inline-flex animate-pulse">Foto's verwerken...</span>
+                        </div>
                     </div>
 
-                    <a href="{{ route('admin.deals') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Annuleren</a>
-                    <button type="submit" wire:loading.attr="disabled" class="px-6 py-2 bg-blue-600 text-white rounded-md font-bold hover:bg-blue-700 shadow-md transition transform hover:scale-105">
-                        Wijzigingen Opslaan 💾
-                    </button>
+                    {{-- Rechter Kant: Opslaan & Annuleren --}}
+                    <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                        <a href="{{ route('admin.deals') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition">Annuleren</a>
+
+                        <button type="submit" wire:loading.attr="disabled" class="px-6 py-2 bg-blue-600 text-white rounded-md font-bold hover:bg-blue-700 shadow-md transition transform hover:scale-105">
+                            Wijzigingen Opslaan 💾
+                        </button>
+                    </div>
+
                 </div>
 
             </form>

@@ -11,10 +11,10 @@
         {{-- HEADER: Zoekbalk + Filters + Create Knop --}}
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
 
-            {{-- Linker kant: Zoeken & Filters (Nu netjes in een grid!) --}}
-            <div class="w-full lg:w-5/6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {{-- Linker kant: Zoeken & Filters --}}
+            <div class="w-full lg:w-5/6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
 
-                {{-- Zoekbalk --}}
+                {{-- 1. Zoekbalk --}}
                 <div class="relative">
                     <input
                         type="text"
@@ -29,17 +29,26 @@
                     </div>
                 </div>
 
-                {{-- Filter: Auteur --}}
+                {{-- 2. Filter: Status --}}
+                <div>
+                    <select wire:model.live="filter_status" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-gray-600 font-medium">
+                        <option value="">Alle statussen</option>
+                        <option value="active">Alleen Actief ✅</option>
+                        <option value="archived">Alleen Archief 📦</option>
+                    </select>
+                </div>
+
+                {{-- 3. Filter: Auteur --}}
                 <div>
                     <select wire:model.live="filter_author" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-gray-600">
                         <option value="">Alle Auteurs</option>
-                        @foreach($authors as $author)
+                        @foreach($authors ?? [] as $author)
                             <option value="{{ $author->id }}">{{ $author->name }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                {{-- Filter: Datum (Kalender) --}}
+                {{-- 4. Filter: Datum (Kalender) --}}
                 <div wire:ignore class="relative flex flex-col">
                     <div class="relative w-full">
                         <input
@@ -66,19 +75,24 @@
                             </svg>
                         </div>
                     </div>
-                    {{-- Wis knopje (past zich mooi aan als er een datum gekozen is) --}}
-                    @if($filter_date)
+                    @if(isset($filter_date) && $filter_date)
                         <button wire:click="$set('filter_date', '')" onclick="document.querySelector('.flatpickr-input')._flatpickr.clear()" class="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase tracking-wider mt-1 text-left px-1">
                             Wis datum ×
                         </button>
                     @endif
                 </div>
 
-                {{-- NIEUW Sorteer dropdown --}}
+                {{-- 5. Sorteer dropdown --}}
                 <div>
                     <select wire:model.live="sort" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-gray-600 font-medium">
                         <option value="newest">Nieuwste eerst</option>
                         <option value="oldest">Oudste eerst</option>
+                        <hr>
+                        <option value="clicks_desc">Weergaven: Hoog - Laag</option>
+                        <option value="clicks_asc">Weergaven: Laag - Hoog</option>
+                        <option value="conversions_desc">Conversies: Hoog - Laag</option>
+                        <option value="conversions_asc">Conversies: Laag - Hoog</option>
+                        <hr>
                         <option value="price_asc">Prijs: Laag - Hoog</option>
                         <option value="price_desc">Prijs: Hoog - Laag</option>
                     </select>
@@ -104,61 +118,77 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">#ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titel</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aangemaakt</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prestaties</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prijs</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($deals as $deal)
-                            <tr class="hover:bg-gray-50 transition">
+                            <tr class="hover:bg-gray-50 transition {{ !$deal->is_active ? 'bg-gray-50 opacity-75' : '' }}">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-bold">
                                     {{ $deal->id }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($deal->primaryImage)
-                                        <img src="{{ asset('storage/' . $deal->primaryImage->path) }}" class="w-12 h-12 object-cover rounded-md border border-gray-200 shadow-sm">
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    @if($deal->is_active)
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Actief</span>
                                     @else
-                                        <div class="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 text-xs border border-gray-200">
-                                            Geen
-                                        </div>
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-600">Gearchiveerd</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                                    <a href="{{ route('admin.deals.edit', $deal->id) }}" class="hover:text-blue-600 hover:underline block truncate w-48">
-                                        {{ $deal->title }}
-                                    </a>
+
+                                <td class="px-6 py-4 font-medium text-gray-900">
+                                    {{-- CHECK: Is de deal actief? Dan link naar publieke pagina --}}
+                                    @if($deal->is_active)
+                                        <a href="{{ route('public.deal.show', $deal->id) }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline block truncate w-48 font-bold">
+                                            {{ $deal->title }}
+                                        </a>
+                                    @else
+                                        {{-- Deal is gearchiveerd: Alleen tekst tonen om errors te voorkomen --}}
+                                        <span class="text-gray-400 line-through block truncate w-48" title="Gearchiveerde deals kunnen niet worden bekeken op de website">
+                                            {{ $deal->title }}
+                                        </span>
+                                    @endif
                                     <span class="text-xs text-gray-400">{{ $deal->departure_city }} → {{ $deal->arrival_city }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                    <div class="flex items-center">
-                                        <div class="h-6 w-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold mr-2">
-                                            {{ substr($deal->author->name ?? '?', 0, 1) }}
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div title="Weergaven" class="flex items-center text-green-600 font-bold bg-green-50 px-2 py-1 rounded-md">
+                                            👀 {{ $deal->click_count ?? 0 }}
                                         </div>
-                                        {{ $deal->author->name ?? 'Systeem' }}
+                                        <div title="Conversies (Uitgaande Kliks)" class="flex items-center text-purple-600 font-bold bg-purple-50 px-2 py-1 rounded-md">
+                                            ✈️ {{ $deal->outbound_clicks ?? 0 }}
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $deal->created_at->format('d-m-Y') }}
-                                    <div class="text-xs text-gray-400">{{ $deal->created_at->format('H:i') }}</div>
-                                </td>
+
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="text-blue-600 font-bold">€ {{ $deal->discounted_price > 0 ? $deal->discounted_price : $deal->price }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                     <a href="{{ route('admin.deals.edit', $deal->id) }}" class="text-blue-600 hover:text-blue-900">Bewerk</a>
                                     <span class="text-gray-300">|</span>
-                                    <button wire:click="deleteDeal({{ $deal->id }})" wire:confirm="Weet je zeker dat je '{{ $deal->title }}' wilt verwijderen?" class="text-red-600 hover:text-red-900">
+
+                                    @if($deal->is_active)
+                                        <button wire:click="toggleArchive({{ $deal->id }})" class="text-orange-500 hover:text-orange-700 font-medium">Archiveer</button>
+                                    @else
+                                        <button wire:click="toggleArchive({{ $deal->id }})" class="text-green-600 hover:text-green-800 font-medium">Activeer</button>
+                                    @endif
+
+                                    <span class="text-gray-300">|</span>
+                                    <button wire:click="deleteDeal({{ $deal->id }})" wire:confirm="Weet je zeker dat je '{{ $deal->title }}' definitief wilt verwijderen?" class="text-red-600 hover:text-red-900">
                                         Verwijder
                                     </button>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                                <td colspan="6" class="px-6 py-10 text-center text-gray-500">
                                     Geen deals gevonden die voldoen aan je zoekopdracht.
                                 </td>
                             </tr>
@@ -167,7 +197,7 @@
                 </table>
             </div>
 
-            {{-- PAGINERING LINKS --}}
+            {{-- PAGINERING --}}
             @if($deals->hasPages())
                 <div class="px-6 py-4 border-t border-gray-200">
                     {{ $deals->links() }}

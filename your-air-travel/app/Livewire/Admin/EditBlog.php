@@ -5,13 +5,14 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Blog;
+use Illuminate\Support\Facades\Storage;
 
-class CreateBlog extends Component
+class EditBlog extends Component
 {
     use WithFileUploads;
 
-    public $title, $content, $image;
-    public $is_active = true; // Standaard staat een nieuwe blog op 'Live'
+    public $blogId;
+    public $title, $content, $image, $existingImage, $is_active;
     public $tags = [];
 
     public $availableTags = [
@@ -22,12 +23,27 @@ class CreateBlog extends Component
         'Reistips', 'Inpaklijstjes', 'Vliegtips', 'Hotels', 'Autohuur', 'Visum & Documenten', 'Gezondheid op reis'
     ];
 
-    public function toggleStatus()
+    public function mount($id)
     {
-        $this->is_active = !$this->is_active;
+        $blog = Blog::findOrFail($id);
+        $this->blogId = $blog->id;
+        $this->title = $blog->title;
+        $this->content = $blog->content;
+        $this->tags = $blog->tags ?? [];
+        $this->existingImage = $blog->image_path;
+        $this->is_active = $blog->is_active;
     }
 
-    public function saveBlog()
+    public function toggleArchive()
+    {
+        $this->is_active = !$this->is_active;
+        Blog::where('id', $this->blogId)->update(['is_active' => $this->is_active]);
+
+        $msg = $this->is_active ? 'Blog is nu weer live!' : 'Blog is gearchiveerd.';
+        session()->flash('message', $msg);
+    }
+
+    public function updateBlog()
     {
         $this->validate([
             'title' => 'required|min:5',
@@ -35,23 +51,30 @@ class CreateBlog extends Component
             'image' => 'nullable|image|max:2048',
         ]);
 
-        $imagePath = $this->image ? $this->image->store('blogs', 'public') : null;
+        $blog = Blog::findOrFail($this->blogId);
+        $imagePath = $this->existingImage;
 
-        Blog::create([
+        if ($this->image) {
+            if ($this->existingImage) {
+                Storage::disk('public')->delete($this->existingImage);
+            }
+            $imagePath = $this->image->store('blogs', 'public');
+        }
+
+        $blog->update([
             'title' => $this->title,
             'content' => $this->content,
             'image_path' => $imagePath,
             'tags' => $this->tags,
-            'user_id' => auth()->id(),
-            'is_active' => $this->is_active, // Gebruikt nu de gekozen status
+            'is_active' => $this->is_active,
         ]);
 
-        session()->flash('message', $this->is_active ? 'Blog succesvol gepubliceerd!' : 'Blog opgeslagen als concept.');
+        session()->flash('message', 'Blog succesvol bijgewerkt!');
         return redirect()->route('admin.blogs.index');
     }
 
     public function render()
     {
-        return view('livewire.admin.create-blog')->layout('layouts.app');
+        return view('livewire.admin.edit-blog')->layout('layouts.app');
     }
 }
