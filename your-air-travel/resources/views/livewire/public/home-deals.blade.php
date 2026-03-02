@@ -158,4 +158,27 @@
         </div>
     </section>
     @endif
+{{-- SECTIE: BLOGS / INSPIRATIE --}}
+    @if(isset($latestBlogs) && $latestBlogs->count() > 0)
+    <section class="border-t border-gray-100 pt-24">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">Reisinspiratie & Tips 📝</h2>
+                <p class="text-gray-500 text-lg mt-2">Haal alles uit je volgende vakantie met onze gidsen.</p>
+            </div>
+            {{-- De link verwijst nu naar je bestaande blog overzicht pagina --}}
+            <a href="{{ route('public.blogs') }}" class="mt-4 md:mt-0 inline-flex items-center text-[#2596be] font-bold hover:underline group">
+                Bekijk alle artikelen
+                <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+            </a>
+        </div>
+
+        {{-- Grid van 3 kolommen --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @foreach($latestBlogs as $blog)
+                <x-blog-card :blog="$blog" />
+            @endforeach
+        </div>
+    </section>
+    @endif
 </div>

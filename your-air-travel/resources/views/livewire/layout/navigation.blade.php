@@ -17,32 +17,42 @@ new class extends Component
         <div class="flex justify-between h-16">
             <div class="flex">
                 <div class="shrink-0 flex items-center">
-    <a href="{{ route('dashboard') }}" wire:navigate>
-        <img src="{{ asset('images/logo.png') }}" alt="Your Air Travel Logo" class="block h-10 w-auto">
-    </a>
-</div>
+                    <a href="{{ route('dashboard') }}" wire:navigate>
+                        <img src="{{ asset('images/logo.png') }}" alt="Your Air Travel Logo" class="block h-10 w-auto">
+                    </a>
+                </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-    {{-- Dashboard Link --}}
-    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-        {{ __('Dashboard') }}
-    </x-nav-link>
+                    {{-- Dashboard Link --}}
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
 
-    {{-- Manage Deals Link --}}
-    <x-nav-link :href="route('admin.deals')" :active="request()->routeIs('admin.deals*')" wire:navigate>
-        {{ __('Manage Deals') }}
-    </x-nav-link>
+                    {{-- Manage Deals Link --}}
+                    <x-nav-link :href="route('admin.deals')" :active="request()->routeIs('admin.deals*')" wire:navigate>
+                        {{ __('Manage Deals') }}
+                    </x-nav-link>
 
-    {{-- Homepage Flash Deals Link (NIEUW) --}}
-    <x-nav-link :href="route('admin.instant-deals')" :active="request()->routeIs('admin.instant-deals')" wire:navigate>
-        {{ __('Flash Deals') }}
-    </x-nav-link>
+                    {{-- Homepage Flash Deals Link --}}
+                    <x-nav-link :href="route('admin.instant-deals')" :active="request()->routeIs('admin.instant-deals')" wire:navigate>
+                        {{ __('Flash Deals') }}
+                    </x-nav-link>
 
-    {{-- Manage Blogs Link --}}
-    <x-nav-link :href="route('admin.blogs.index')" :active="request()->routeIs('admin.blogs.*')" wire:navigate>
-        {{ __('Manage Blogs') }}
-    </x-nav-link>
-</div>
+                    {{-- Manage Blogs Link --}}
+                    <x-nav-link :href="route('admin.blogs.index')" :active="request()->routeIs('admin.blogs.*')" wire:navigate>
+                        {{ __('Manage Blogs') }}
+                    </x-nav-link>
+
+                    {{-- Alleen zichtbaar voor Super Admins --}}
+                    @if(auth()->user()->is_admin)
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.index')" wire:navigate class="text-[#2596be] font-bold">
+                            {{ __('Users') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.users.create')" :active="request()->routeIs('admin.users.create')" wire:navigate class="text-[#2596be] font-bold">
+                            {{ __('Invite User') }}
+                        </x-nav-link>
+                    @endif
+                </div>
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -95,10 +105,24 @@ new class extends Component
                 {{ __('Manage Deals') }}
             </x-responsive-nav-link>
 
-            {{-- Manage Blogs Link Mobiel (NIEUW) --}}
+            <x-responsive-nav-link :href="route('admin.instant-deals')" :active="request()->routeIs('admin.instant-deals')" wire:navigate>
+                {{ __('Flash Deals') }}
+            </x-responsive-nav-link>
+
             <x-responsive-nav-link :href="route('admin.blogs.index')" :active="request()->routeIs('admin.blogs.*')" wire:navigate>
                 {{ __('Manage Blogs') }}
             </x-responsive-nav-link>
+
+            {{-- Alleen zichtbaar voor Super Admins (Mobiel) --}}
+            @if(auth()->user()->is_admin)
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.index')" wire:navigate class="text-[#2596be] font-bold">
+                    {{ __('Users') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.users.create')" :active="request()->routeIs('admin.users.create')" wire:navigate class="text-[#2596be] font-bold">
+                    {{ __('Invite User') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200">
