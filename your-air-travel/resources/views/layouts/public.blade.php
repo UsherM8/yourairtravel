@@ -25,17 +25,17 @@
 </head>
 <body class="font-sans antialiased bg-gray-50 text-gray-900 flex flex-col min-h-screen">
 
-    {{-- GLOBALE HEADER - NU FIXED BOVENAAN --}}
-    <nav x-data="{ mobileMenuOpen: false }" class="fixed top-0 inset-x-0 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 z-50 transition-all duration-300">
-        <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+    {{-- GLOBALE HEADER - Terug naar STICKY! --}}
+    <nav x-data="{ mobileMenuOpen: false }" class="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="flex justify-between items-center h-16 lg:h-20">
 
-                {{-- 1. KLIKBAAR LOGO (Responsive: klein op mobiel, groot op desktop) --}}
+                {{-- 1. KLIKBAAR LOGO --}}
                 <a href="/" class="flex-shrink-0 flex items-center group gap-3">
                     <img src="{{ asset('images/logo.png') }}" alt="YourAirTravel Logo" class="h-10 lg:h-16 w-auto group-hover:scale-105 transition-transform drop-shadow-sm">
                 </a>
 
-                {{-- 2. DESKTOP NAVIGATIE (Verborgen op mobiel) --}}
+                {{-- 2. DESKTOP NAVIGATIE --}}
                 <div class="hidden lg:flex items-center space-x-8 text-sm font-bold text-gray-700 h-full">
 
                     {{-- Last Minutes --}}
@@ -50,7 +50,7 @@
                             <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </div>
 
-                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-[80px] left-1/2 -translate-x-1/2 w-[850px] bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden cursor-default flex flex-col max-h-[75vh]">
+                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-full left-1/2 -translate-x-1/2 w-[850px] bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden cursor-default flex flex-col max-h-[75vh]">
                             <div class="p-5 bg-gray-50 border-b border-gray-100">
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -72,7 +72,10 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                     <template x-for="item in filteredDestinations" :key="item.country">
                                         <div>
-                                            <a :href="item.isContinent ? '/zoeken?continenten[]=' + encodeURIComponent(item.country) : '/zoeken?landen[]=' + encodeURIComponent(item.country)" class="flex items-center group mb-3 border-b-2 border-[#2596be]/20 pb-2">
+                                            <a :href="item.isContinent
+                                                ? '/zoeken?continenten[]=' + encodeURIComponent(item.country)
+                                                : '/zoeken?landen[]=' + encodeURIComponent(item.country)"
+                                               class="flex items-center group mb-3 border-b-2 border-[#2596be]/20 pb-2">
                                                 <span class="text-xl mr-2" x-text="item.icon"></span>
                                                 <h4 class="font-extrabold text-gray-900 group-hover:text-[#2596be] transition-colors" x-text="item.isContinent ? item.country + ' (Alle)' : item.country"></h4>
                                             </a>
@@ -102,7 +105,7 @@
                             <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </div>
 
-                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-[80px] left-0 w-64 bg-white border border-gray-100 shadow-xl rounded-2xl py-3 cursor-default">
+                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-full left-0 w-64 bg-white border border-gray-100 shadow-xl rounded-2xl py-3 cursor-default">
                             <a href="{{ route('search.results', ['vakantietypes' => ['zon']]) }}" class="flex items-center px-5 py-3 hover:bg-gray-50 transition-colors group">
                                 <span class="bg-yellow-100 text-yellow-700 p-1.5 rounded-lg mr-3 group-hover:scale-110 transition-transform">☀️</span>
                                 <div>
@@ -138,6 +141,11 @@
                                     <div class="text-xs text-gray-500 font-medium">Onbezorgd genieten</div>
                                 </div>
                             </a>
+                            <div class="border-t border-gray-100 mt-2 pt-2">
+                                <a href="{{ route('search.results', ['vakantietypes' => ['lastminute']]) }}" class="flex items-center px-5 py-2 hover:bg-gray-50 transition-colors text-[#e5764b]">
+                                    <span class="mr-2 font-black">⚡</span> Last-Minute
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -147,7 +155,7 @@
                             Reisorganisaties
                             <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </div>
-                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-[80px] left-0 w-48 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 cursor-default">
+                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-full left-0 w-48 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 cursor-default">
                             <a href="{{ route('search.results') }}" class="block px-5 py-2 hover:bg-gray-50 hover:text-[#2596be] transition-colors">TUI</a>
                             <a href="{{ route('search.results') }}" class="block px-5 py-2 hover:bg-gray-50 hover:text-[#2596be] transition-colors">Corendon</a>
                             <a href="{{ route('search.results') }}" class="block px-5 py-2 hover:bg-gray-50 hover:text-[#2596be] transition-colors">Sunweb</a>
@@ -165,7 +173,7 @@
 
                 {{-- 3. HAMBURGER MENU (Mobiel) --}}
                 <div class="flex lg:hidden">
-                    <button @click="mobileMenuOpen = ! mobileMenuOpen" class="text-gray-500 hover:text-[#2596be] p-2">
+                    <button @click="mobileMenuOpen = ! mobileMenuOpen" class="text-gray-500 hover:text-[#2596be] p-2 focus:outline-none">
                         <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                             <path x-show="mobileMenuOpen" style="display: none;" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -179,7 +187,7 @@
         <div x-show="mobileMenuOpen"
              x-transition.opacity.duration.300ms
              style="display: none;"
-             class="lg:hidden bg-white border-t border-gray-100 absolute w-full shadow-2xl overflow-y-auto max-h-[85vh]">
+             class="lg:hidden bg-white border-t border-gray-100 absolute w-full shadow-2xl overflow-y-auto max-h-[85vh] left-0 top-full">
             <div class="px-4 py-6 space-y-4 flex flex-col">
                 <a href="{{ route('search.results', ['vakantietypes' => ['lastminute']]) }}" class="text-xl font-black text-gray-900 hover:text-[#2596be]">Last Minutes</a>
                 <a href="{{ route('search.results') }}" class="text-xl font-black text-gray-900 hover:text-[#2596be]">Bestemmingen</a>
@@ -191,14 +199,12 @@
         </div>
     </nav>
 
-    {{-- HOOFD CONTENT --}}
-    {{-- pt-16 voor mobiel, pt-20 voor desktop. Dit duwt de rest van de site onder de fixed header --}}
-    <main class="flex-grow pt-16 lg:pt-20">
+    {{-- HOOFD CONTENT (Zonder padding hacks!) --}}
+    <main class="flex-grow">
         {{ $slot }}
     </main>
 
-    {{-- FOOTER --}}
-    <footer class="bg-white border-t border-gray-200 pt-16 pb-8 mt-auto relative z-10">
+    <footer class="bg-white border-t border-gray-200 pt-16 pb-8 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
                 <div class="col-span-1 md:col-span-2">
@@ -211,7 +217,7 @@
                         <li><a href="{{ route('search.results') }}" class="hover:text-[#2596be] transition-colors">Bestemmingen</a></li>
                         <li><a href="{{ route('search.results') }}" class="hover:text-[#2596be] transition-colors">Vakanties</a></li>
                         <li><a href="{{ route('search.results') }}" class="hover:text-[#2596be] transition-colors">Vliegtickets</a></li>
-                        <li><a href="{{ route('public.blogs') }}" class="hover:text-[#2596be] transition-colors">Reisblog</a></li>
+                        <li><a href="#" class="hover:text-[#2596be] transition-colors">Reisblog</a></li>
                     </ul>
                 </div>
                 <div>
