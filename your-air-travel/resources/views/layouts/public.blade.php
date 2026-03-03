@@ -15,30 +15,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
 
-    {{-- Aangepaste scrollbar voor het nieuwe Mega Menu --}}
+    {{-- Aangepaste scrollbar & Onverwoestbare Layout Fixes --}}
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 🚨 DE HOSTINGER FIXES 🚨 */
+        @media (min-width: 1024px) {
+            .desktop-hide-force { display: none !important; }
+        }
+        .mega-menu-fix {
+            right: 0 !important;
+            left: auto !important;
+            transform: none !important;
+            top: 100% !important;
+        }
+        .dropdown-fix {
+            top: 100% !important;
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-gray-50 text-gray-900 flex flex-col min-h-screen">
 
-    {{-- GLOBALE HEADER - Terug naar STICKY! --}}
+    {{-- GLOBALE HEADER --}}
     <nav x-data="{ mobileMenuOpen: false }" class="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="flex justify-between items-center h-16 lg:h-20">
 
                 {{-- 1. KLIKBAAR LOGO --}}
-                <a href="/" class="flex-shrink-0 flex items-center group gap-3">
-                    <img src="{{ asset('images/logo.png') }}" alt="YourAirTravel Logo" class="h-10 lg:h-16 w-auto group-hover:scale-105 transition-transform drop-shadow-sm">
-                </a>
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="/" class="group">
+                        <img src="{{ asset('images/logo.png') }}" alt="YourAirTravel Logo" class="h-10 lg:h-16 w-auto group-hover:scale-105 transition-transform drop-shadow-sm">
+                    </a>
+                </div>
 
                 {{-- 2. DESKTOP NAVIGATIE --}}
                 <div class="hidden lg:flex items-center space-x-8 text-sm font-bold text-gray-700 h-full">
 
-                    {{-- Last Minutes --}}
                     <a href="{{ route('search.results', ['vakantietypes' => ['lastminute']]) }}" class="hover:text-[#2596be] transition-colors flex items-center h-full">
                         Last Minutes
                     </a>
@@ -50,7 +65,8 @@
                             <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </div>
 
-                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-full left-1/2 -translate-x-1/2 w-[850px] bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden cursor-default flex flex-col max-h-[75vh]">
+                        {{-- FIX: De mega-menu-fix class dwingt het menu naar links uit te vouwen, zodat hij nooit over de rechter rand valt --}}
+                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute w-[850px] bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden cursor-default flex flex-col max-h-[75vh] mega-menu-fix">
                             <div class="p-5 bg-gray-50 border-b border-gray-100">
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -72,10 +88,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                     <template x-for="item in filteredDestinations" :key="item.country">
                                         <div>
-                                            <a :href="item.isContinent
-                                                ? '/zoeken?continenten[]=' + encodeURIComponent(item.country)
-                                                : '/zoeken?landen[]=' + encodeURIComponent(item.country)"
-                                               class="flex items-center group mb-3 border-b-2 border-[#2596be]/20 pb-2">
+                                            <a :href="item.isContinent ? '/zoeken?continenten[]=' + encodeURIComponent(item.country) : '/zoeken?landen[]=' + encodeURIComponent(item.country)" class="flex items-center group mb-3 border-b-2 border-[#2596be]/20 pb-2">
                                                 <span class="text-xl mr-2" x-text="item.icon"></span>
                                                 <h4 class="font-extrabold text-gray-900 group-hover:text-[#2596be] transition-colors" x-text="item.isContinent ? item.country + ' (Alle)' : item.country"></h4>
                                             </a>
@@ -105,7 +118,8 @@
                             <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </div>
 
-                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-full left-0 w-64 bg-white border border-gray-100 shadow-xl rounded-2xl py-3 cursor-default">
+                        {{-- FIX: dropdown-fix class met extra marge --}}
+                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none; left: -20px;" class="absolute w-64 bg-white border border-gray-100 shadow-xl rounded-2xl py-3 cursor-default dropdown-fix">
                             <a href="{{ route('search.results', ['vakantietypes' => ['zon']]) }}" class="flex items-center px-5 py-3 hover:bg-gray-50 transition-colors group">
                                 <span class="bg-yellow-100 text-yellow-700 p-1.5 rounded-lg mr-3 group-hover:scale-110 transition-transform">☀️</span>
                                 <div>
@@ -155,7 +169,7 @@
                             Reisorganisaties
                             <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </div>
-                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;" class="absolute top-full left-0 w-48 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 cursor-default">
+                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none; right: 0;" class="absolute w-48 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 cursor-default dropdown-fix">
                             <a href="{{ route('search.results') }}" class="block px-5 py-2 hover:bg-gray-50 hover:text-[#2596be] transition-colors">TUI</a>
                             <a href="{{ route('search.results') }}" class="block px-5 py-2 hover:bg-gray-50 hover:text-[#2596be] transition-colors">Corendon</a>
                             <a href="{{ route('search.results') }}" class="block px-5 py-2 hover:bg-gray-50 hover:text-[#2596be] transition-colors">Sunweb</a>
@@ -171,8 +185,9 @@
                     </a>
                 </div>
 
-                {{-- 3. HAMBURGER MENU (Mobiel) --}}
-                <div class="flex lg:hidden">
+                {{-- 3. HAMBURGER MENU KNOP --}}
+                {{-- FIX: De desktop-hide-force klasse verbergt deze meedogenloos op laptop/pc --}}
+                <div class="flex items-center desktop-hide-force">
                     <button @click="mobileMenuOpen = ! mobileMenuOpen" class="text-gray-500 hover:text-[#2596be] p-2 focus:outline-none">
                         <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -187,7 +202,7 @@
         <div x-show="mobileMenuOpen"
              x-transition.opacity.duration.300ms
              style="display: none;"
-             class="lg:hidden bg-white border-t border-gray-100 absolute w-full shadow-2xl overflow-y-auto max-h-[85vh] left-0 top-full">
+             class="desktop-hide-force bg-white border-t border-gray-100 absolute w-full shadow-2xl overflow-y-auto max-h-[85vh] left-0 top-full">
             <div class="px-4 py-6 space-y-4 flex flex-col">
                 <a href="{{ route('search.results', ['vakantietypes' => ['lastminute']]) }}" class="text-xl font-black text-gray-900 hover:text-[#2596be]">Last Minutes</a>
                 <a href="{{ route('search.results') }}" class="text-xl font-black text-gray-900 hover:text-[#2596be]">Bestemmingen</a>
@@ -199,7 +214,7 @@
         </div>
     </nav>
 
-    {{-- HOOFD CONTENT (Zonder padding hacks!) --}}
+    {{-- HOOFD CONTENT --}}
     <main class="flex-grow">
         {{ $slot }}
     </main>
