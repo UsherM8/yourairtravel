@@ -24,7 +24,7 @@
                 Toegang Krijgen
             </button>
         </form>
-        <p class="mt-8 text-[10px] text-slate-300 font-bold uppercase tracking-widest">© 2024 YourAirTravel Development Team</p>
+        <p class="mt-8 text-[10px] text-slate-300 font-bold uppercase tracking-widest">© 2026 YourAirTravel Development Team</p>
     </div>
 </body>
 </html>

@@ -4,8 +4,8 @@
         {{-- HOOFD ZOEKVELDEN (Bovenste rij) --}}
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-stretch">
 
-            {{-- 1. Bestemming --}}
-            <div x-data="{ open: false }" class="relative z-50">
+            {{-- 1. Bestemming (MET ZOEKFUNCTIE OP LAND EN STAD) --}}
+            <div x-data="{ open: false, search: '' }" class="relative z-50">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </div>
@@ -19,65 +19,77 @@
                     </span>
                     <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </div>
+
                 <div x-show="open" @click.outside="open = false" style="display: none;" class="absolute w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-80 overflow-y-auto z-[60]">
+                    {{-- Sticky Zoekbalkje --}}
+                    <div class="sticky top-0 bg-white z-10 p-2 border-b border-gray-100">
+                        <input x-model="search" type="text" placeholder="Zoek land of stad..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-[#2596be] focus:border-[#2596be] outline-none" @click.stop>
+                    </div>
+
                     <div class="p-2">
-                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Kies Bestemming</div>
+                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2 mt-1">Kies Bestemming</div>
+
                         @foreach($beschikbareBestemmingen as $land => $steden)
-                            <label class="flex items-center px-3 py-2 hover:bg-[#2596be]/10 rounded-lg cursor-pointer font-medium text-gray-800 transition-colors">
-                                <input type="checkbox" wire:model.live="geselecteerdeLanden" value="{{ $land }}" class="rounded border-gray-300 text-[#2596be] focus:ring-[#2596be] w-4 h-4">
-                                <span class="ml-3">{{ $land }}</span>
-                            </label>
-                            @if(in_array($land, $geselecteerdeLanden ?? []))
-                                <div class="ml-8 mb-2 border-l-2 border-[#2596be]/30 pl-2 space-y-1">
+                            {{-- Alpine logica checkt of het land opengeklapt moet zijn --}}
+                            <div
+                                x-data="{ get showCities() { return ($wire.geselecteerdeLanden || []).includes('{{ $land }}') || search !== ''; } }"
+                                x-show="search === '' || $el.textContent.toLowerCase().includes(search.toLowerCase())"
+                            >
+                                <label class="flex items-center px-3 py-2 hover:bg-[#2596be]/10 rounded-lg cursor-pointer font-medium text-gray-800 transition-colors">
+                                    <input type="checkbox" wire:model.live="geselecteerdeLanden" value="{{ $land }}" class="rounded border-gray-300 text-[#2596be] focus:ring-[#2596be] w-4 h-4">
+                                    <span class="ml-3">{{ $land }}</span>
+                                </label>
+
+                                {{-- Steden staan nu ALTIJD in de DOM, maar worden verborgen/getoond via Alpine --}}
+                                <div x-show="showCities" style="display: none;" class="ml-8 mb-2 border-l-2 border-[#2596be]/30 pl-2 space-y-1">
                                     @foreach($steden as $stad)
-                                        <label class="flex items-center px-3 py-1.5 hover:bg-[#2596be]/10 rounded-lg cursor-pointer text-sm text-gray-600 transition-colors">
+                                        <label x-show="search === '' || '{{ strtolower($stad) }}'.includes(search.toLowerCase())" class="flex items-center px-3 py-1.5 hover:bg-[#2596be]/10 rounded-lg cursor-pointer text-sm text-gray-600 transition-colors">
                                             <input type="checkbox" wire:model.live="geselecteerdeSteden" value="{{ $stad }}" class="rounded border-gray-300 text-[#2596be] focus:ring-[#2596be] w-3.5 h-3.5">
                                             <span class="ml-3">{{ $stad }}</span>
                                         </label>
                                     @endforeach
                                 </div>
-                            @endif
+                            </div>
                         @endforeach
                     </div>
                 </div>
             </div>
 
-            {{-- 2. Reisperiode (GEFIXTE DATUM PICKER) --}}
+            {{-- 2. Reisperiode (GEFIXTE DATUM PICKER & PLACEHOLDER) --}}
             <div class="relative z-40 w-full" wire:ignore>
-                {{-- Wrapper om te voorkomen dat alt-input de layout breekt --}}
-                <div class="flex items-center w-full h-full relative no-wrap">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
-                    <input
-                        type="text"
-                        x-data
-                        x-init="
-                            setTimeout(() => {
-                                flatpickr($el, {
-                                    mode: 'range',
-                                    minDate: 'today',
-                                    dateFormat: 'Y-m-d',
-                                    altInput: true,
-                                    altFormat: 'j M',
-                                    locale: 'nl',
-                                    placeholder: 'Wanneer?',
-                                    static: true, {{-- Belangrijk voor layout stabiliteit --}}
-                                    onChange: function(selectedDates, dateStr, instance) {
-                                        if (selectedDates.length === 2) {
-                                            $wire.set('datum_van', flatpickr.formatDate(selectedDates[0], 'Y-m-d'));
-                                            $wire.set('datum_tot', flatpickr.formatDate(selectedDates[1], 'Y-m-d'));
-                                        } else if (selectedDates.length === 0) {
-                                            $wire.set('datum_van', null);
-                                            $wire.set('datum_tot', null);
-                                        }
-                                    }
-                                });
-                            }, 100);
-                        "
-                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white shadow-sm text-gray-700 font-medium cursor-pointer hover:border-[#2596be]/50 transition-colors focus:ring-0 focus:outline-none h-full min-w-0"
-                    >
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10 h-full">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
+                {{-- Placeholder attribuut direct op de tag toegevoegd --}}
+                <input
+                    type="text"
+                    placeholder="Wanneer?"
+                    x-data
+                    x-init="
+                        setTimeout(() => {
+                            flatpickr($el, {
+                                mode: 'range',
+                                minDate: 'today',
+                                dateFormat: 'Y-m-d',
+                                altInput: true,
+                                altFormat: 'j M',
+                                locale: 'nl',
+                                {{-- Geen static: true meer, dit brak de w-full styling op mobiel --}}
+                                altInputClass: 'w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white shadow-sm text-gray-700 font-medium cursor-pointer hover:border-[#2596be]/50 transition-colors focus:ring-0 focus:outline-none h-full min-w-0',
+                                onChange: function(selectedDates, dateStr, instance) {
+                                    if (selectedDates.length === 2) {
+                                        $wire.set('datum_van', flatpickr.formatDate(selectedDates[0], 'Y-m-d'));
+                                        $wire.set('datum_tot', flatpickr.formatDate(selectedDates[1], 'Y-m-d'));
+                                    } else if (selectedDates.length === 0) {
+                                        $wire.set('datum_van', null);
+                                        $wire.set('datum_tot', null);
+                                    }
+                                }
+                            });
+                        }, 100);
+                    "
+                    class="hidden"
+                >
             </div>
 
             {{-- 3. Vertrekluchthaven --}}
