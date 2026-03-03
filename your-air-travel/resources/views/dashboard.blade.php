@@ -86,7 +86,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 space-y-8">
 
-                    {{-- VERLOOPT BINNENKORT (10 items, klikbaar naar show) --}}
+                    {{-- VERLOOPT BINNENKORT --}}
                     <div class="bg-white shadow-sm sm:rounded-2xl border border-gray-100 overflow-hidden">
                         <div class="px-6 py-5 border-b border-gray-100 bg-orange-50/50 flex justify-between items-center">
                             <h3 class="font-bold text-gray-900 text-sm uppercase tracking-wider italic">⏱️ Verloopt Binnenkort (Top 10)</h3>
@@ -118,7 +118,7 @@
                         </div>
                     </div>
 
-                    {{-- VERLOPEN DEALS (Geweest) --}}
+                    {{-- VERLOPEN DEALS --}}
                     <div class="bg-white shadow-sm sm:rounded-2xl border border-gray-100 overflow-hidden">
                         <div class="px-6 py-5 border-b border-gray-100 bg-red-50/50">
                             <h3 class="font-bold text-gray-900 text-sm uppercase tracking-wider italic">🚨 Verlopen Deals</h3>
@@ -167,7 +167,7 @@
                 </div>
             </div>
 
-            {{-- 3. TOP PERFORMANCE GRID (3x5) --}}
+            {{-- 3. TOP PERFORMANCE GRID --}}
             <div class="bg-white shadow-sm sm:rounded-[2.5rem] border border-gray-100 overflow-hidden">
                 <div class="px-10 py-8 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
@@ -176,10 +176,8 @@
                         </h3>
                     </div>
 
-                    {{-- FILTER OPTIES --}}
                     <div class="flex flex-wrap items-center gap-3">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Sorteer op:</p>
-                        {{-- DEAFULT IS NU VIEWS --}}
                         <a href="?sort=views" class="bg-white border {{ request('sort') == 'views' || !request('sort') ? 'border-blue-500 text-blue-600 ring-2 ring-blue-100' : 'border-gray-200 text-gray-500' }} px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all shadow-sm">Views 👀</a>
                         <a href="?sort=boeks" class="bg-white border {{ request('sort') == 'boeks' ? 'border-purple-500 text-purple-600 ring-2 ring-purple-100' : 'border-gray-200 text-gray-500' }} px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all shadow-sm">Boeking link clicks ✈️</a>
                     </div>
@@ -212,7 +210,8 @@
 
                                         <div class="h-32 w-full overflow-hidden bg-gray-100 relative shrink-0">
                                             @if($finalPath)
-                                                <img src="{{ asset('storage/' . $finalPath) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                                {{-- HOSTINGER FIX HIER --}}
+                                                <img src="{{ file_exists(public_path('uploads/' . $finalPath)) ? asset('uploads/' . $finalPath) : asset('storage/' . $finalPath) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                             @else
                                                 <div class="w-full h-full flex items-center justify-center text-gray-300 font-bold italic text-[10px]">
                                                     ✈️ YourAirTravel
@@ -238,7 +237,6 @@
                                         </div>
                                     </a>
                                 @else
-                                    {{-- OFFLINE KAART --}}
                                     <div class="bg-gray-100 border border-gray-200 rounded-[2.5rem] overflow-hidden opacity-50 grayscale flex flex-col h-full relative">
                                         <div class="h-32 w-full bg-gray-200 flex items-center justify-center text-gray-400 italic font-black text-[10px]">OFFLINE</div>
                                         <div class="p-5 flex-1 flex flex-col justify-center">
@@ -252,7 +250,6 @@
                         @endforelse
                     </div>
 
-                    {{-- PAGINERING --}}
                     <div class="mt-12">
                         {{ $topClickedDeals->links() }}
                     </div>

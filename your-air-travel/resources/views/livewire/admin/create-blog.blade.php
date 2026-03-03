@@ -30,7 +30,7 @@
                     <div>
                         <label class="block text-sm font-bold text-gray-700 uppercase tracking-tight">Titel</label>
                         <input type="text" wire:model="title" placeholder="Bijv: 10 tips voor je eerste reis naar Japan" class="mt-1 block w-full border-gray-200 bg-gray-50 rounded-xl shadow-sm focus:ring-green-500 focus:border-green-500 p-3">
-                        @error('title') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        @error('title') <span class="text-red-500 text-xs font-bold">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Hoofdafbeelding --}}
@@ -44,6 +44,7 @@
                                 <div class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm">Preview</div>
                             </div>
                         @endif
+                        @error('image') <span class="text-red-500 text-xs font-bold">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Inhoud met Trix Editor --}}
@@ -51,7 +52,7 @@
                         <label class="block text-sm font-bold text-gray-700 uppercase tracking-tight mb-2">Inhoud van de blog</label>
                         <input id="content" type="hidden" name="content" wire:model="content">
                         <trix-editor input="content" class="trix-content border-gray-200 bg-gray-50 rounded-xl shadow-sm min-h-[450px] focus:ring-green-500 p-4 leading-relaxed"></trix-editor>
-                        @error('content') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        @error('content') <span class="text-red-500 text-xs font-bold">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Tags (Alpine.js selectie) --}}
@@ -110,8 +111,9 @@
 
                     {{-- Submit --}}
                     <div class="flex justify-end pt-8 border-t border-gray-100">
-                        <button type="submit" class="bg-green-600 text-white px-10 py-4 rounded-2xl font-black hover:bg-green-700 transition shadow-xl shadow-green-100 hover:-translate-y-1 transform">
-                            {{ $is_active ? '🚀 Blog Nu Publiceren' : '💾 Opslaan als Concept' }}
+                        <button type="submit" wire:loading.attr="disabled" class="bg-green-600 text-white px-10 py-4 rounded-2xl font-black hover:bg-green-700 transition shadow-xl shadow-green-100 hover:-translate-y-1 transform disabled:opacity-50">
+                            <span wire:loading.remove wire:target="saveBlog">{{ $is_active ? '🚀 Blog Nu Publiceren' : '💾 Opslaan als Concept' }}</span>
+                            <span wire:loading wire:target="saveBlog">Bezig met opslaan...</span>
                         </button>
                     </div>
                 </form>
@@ -127,9 +129,7 @@
     </script>
 
     <style>
-        .trix-content { width: 100%; }
+        .trix-content { width: 100%; border-radius: 0.75rem !important; }
         trix-toolbar .trix-button--icon-attach { display: none; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
     </style>
 </div>

@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Blog;
+use Illuminate\Support\Facades\File; // <-- Toegevoegd voor de copy fix
 
 class CreateBlog extends Component
 {
@@ -29,24 +30,48 @@ class CreateBlog extends Component
 
     public function saveBlog()
     {
+        // 1. Validatie (max 5MB is perfect)
         $this->validate([
             'title' => 'required|min:5',
             'content' => 'required',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'required|image|max:5120',
         ]);
 
-        $imagePath = $this->image ? $this->image->store('blogs', 'public') : null;
+        $imagePath = null;
 
+        // 2. Afbeelding verwerken (Livewire-Proof)
+        if ($this->image) {
+            $destinationPath = public_path('uploads');
+
+            // Check of de map al bestaat. Zo niet? Maak hem dan aan!
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            // Maak een unieke bestandsnaam
+            $filename = time() . '-' . $this->image->getClientOriginalName();
+
+            // Kopiëer de foto uit de Livewire-temp map naar public/uploads
+            File::copy(
+                $this->image->getRealPath(),
+                $destinationPath . '/' . $filename
+            );
+
+            // Sla alleen de naam op in de DB
+            $imagePath = $filename;
+        }
+
+        // 3. Blog opslaan in de database
         Blog::create([
             'title' => $this->title,
             'content' => $this->content,
             'image_path' => $imagePath,
             'tags' => $this->tags,
-            'user_id' => auth()->id(),
-            'is_active' => $this->is_active, // Gebruikt nu de gekozen status
+            'is_active' => $this->is_active,
+            'author_id' => auth()->id(),
         ]);
 
-        session()->flash('message', $this->is_active ? 'Blog succesvol gepubliceerd!' : 'Blog opgeslagen als concept.');
+        session()->flash('message', 'Blog succesvol aangemaakt! ✨');
         return redirect()->route('admin.blogs.index');
     }
 

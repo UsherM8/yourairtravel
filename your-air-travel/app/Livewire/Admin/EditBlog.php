@@ -5,7 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Blog;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File; // <-- Toegevoegd voor de copy fix
 
 class EditBlog extends Component
 {
@@ -48,17 +48,37 @@ class EditBlog extends Component
         $this->validate([
             'title' => 'required|min:5',
             'content' => 'required',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:20480', // 20MB limiet
         ]);
 
         $blog = Blog::findOrFail($this->blogId);
-        $imagePath = $this->existingImage;
+        $imagePath = $blog->image_path;
 
         if ($this->image) {
-            if ($this->existingImage) {
-                Storage::disk('public')->delete($this->existingImage);
+            $destinationPath = public_path('uploads');
+
+            // 1. Check of de map al bestaat. Zo niet? Maak hem dan aan!
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
             }
-            $imagePath = $this->image->store('blogs', 'public');
+
+            $filename = time() . '-' . $this->image->getClientOriginalName();
+
+            // 2. Livewire-proof kopiëren (omzeilt de temp-file error)
+            File::copy(
+                $this->image->getRealPath(),
+                $destinationPath . '/' . $filename
+            );
+
+            // 3. BONUS: Gooi de OUDE foto weg van de server als er een nieuwe is geüpload
+            if ($blog->image_path && file_exists(public_path('uploads/' . $blog->image_path))) {
+                unlink(public_path('uploads/' . $blog->image_path));
+            }
+
+            $imagePath = $filename;
+
+            // Update ook direct het voorbeeldplaatje in het formulier
+            $this->existingImage = $filename;
         }
 
         $blog->update([
@@ -69,8 +89,7 @@ class EditBlog extends Component
             'is_active' => $this->is_active,
         ]);
 
-        session()->flash('message', 'Blog succesvol bijgewerkt!');
-        return redirect()->route('admin.blogs.index');
+        session()->flash('message', 'Blog succesvol bijgewerkt! ✨');
     }
 
     public function render()

@@ -40,7 +40,7 @@ Route::get('/deal/{deal}/boek', function (Deal $deal) {
 })->name('public.deal.book');
 
 Route::get('/blog', BlogList::class)->name('public.blogs');
-Route::get('/blog/{blog}', ShowBlog::class)->name('public.blog.show');
+Route::get('/blog/{id}', ShowBlog::class)->name('public.blog.show');
 
 // Statische pagina's
 Route::view('/over-ons', 'over-ons')->name('over-ons');

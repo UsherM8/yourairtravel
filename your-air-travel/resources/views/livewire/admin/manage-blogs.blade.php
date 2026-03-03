@@ -101,11 +101,13 @@
             @forelse($blogs as $blog)
                 <div class="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group overflow-hidden flex items-center p-4 {{ !$blog->is_active ? 'opacity-60 grayscale-[0.5]' : '' }}">
 
-                    {{-- Thumbnail & Info (Klikbaar indien actief) --}}
+                    {{-- Thumbnail & Info --}}
                     <div class="flex-1 flex items-center gap-6">
                         <div class="w-20 h-20 rounded-2xl overflow-hidden shrink-0 bg-gray-100 border border-gray-50">
                             @if($blog->image_path)
-                                <img src="{{ asset('storage/' . $blog->image_path) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                                {{-- HOSTINGER FIX: Check beide locaties --}}
+                                <img src="{{ file_exists(public_path('uploads/' . $blog->image_path)) ? asset('uploads/' . $blog->image_path) : asset('storage/' . $blog->image_path) }}"
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-gray-300">🖼️</div>
                             @endif
@@ -141,17 +143,23 @@
                     <div class="flex items-center gap-2 ml-4 px-4 border-l border-gray-50">
                         {{-- Quick Archive Toggle --}}
                         <button wire:click="toggleArchive({{ $blog->id }})" class="p-2.5 rounded-xl transition-colors {{ $blog->is_active ? 'text-orange-400 hover:bg-orange-50' : 'text-green-500 hover:bg-green-50' }}" title="Status wijzigen">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                            </svg>
                         </button>
 
                         {{-- Edit --}}
                         <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="p-2.5 rounded-xl hover:bg-blue-50 text-blue-400 hover:text-[#2596be] transition-colors" title="Bewerken">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
                         </a>
 
                         {{-- Delete --}}
                         <button onclick="confirm('Weet je het zeker? Deze blog wordt definitief verwijderd.') || event.stopImmediatePropagation()" wire:click="deleteBlog({{ $blog->id }})" class="p-2.5 rounded-xl hover:bg-red-50 text-red-300 hover:text-red-600 transition-colors" title="Verwijderen">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
                         </button>
                     </div>
                 </div>

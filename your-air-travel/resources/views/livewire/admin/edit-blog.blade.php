@@ -27,7 +27,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Titel</label>
                         <input type="text" wire:model="title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
-                        @error('title') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        @error('title') <span class="text-red-500 text-xs font-bold">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Hoofdafbeelding --}}
@@ -44,10 +44,13 @@
                             @elseif ($existingImage)
                                 <div class="flex-1">
                                     <p class="text-xs text-gray-500 mb-1 font-bold">Huidige afbeelding:</p>
-                                    <img src="{{ asset('storage/' . $existingImage) }}" class="h-40 w-full object-cover rounded-lg border">
+                                    {{-- HOSTINGER FIX: Check beide locaties --}}
+                                    <img src="{{ file_exists(public_path('uploads/' . $existingImage)) ? asset('uploads/' . $existingImage) : asset('storage/' . $existingImage) }}"
+                                         class="h-40 w-full object-cover rounded-lg border">
                                 </div>
                             @endif
                         </div>
+                        @error('image') <span class="text-red-500 text-xs font-bold">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Inhoud met Trix Editor --}}
@@ -55,7 +58,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Inhoud</label>
                         <input id="content" type="hidden" name="content" wire:model="content">
                         <trix-editor input="content" class="trix-content border-gray-300 rounded-md shadow-sm min-h-[400px] focus:ring-green-500"></trix-editor>
-                        @error('content') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        @error('content') <span class="text-red-500 text-xs font-bold">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Tags met Alpine.js --}}
@@ -113,8 +116,9 @@
 
                     <div class="flex justify-between items-center pt-4 border-t border-gray-100">
                         <a href="{{ route('admin.blogs.index') }}" class="text-gray-500 font-bold hover:underline">Annuleren</a>
-                        <button type="submit" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition shadow-lg">
-                            Wijzigingen Opslaan
+                        <button type="submit" wire:loading.attr="disabled" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition shadow-lg disabled:opacity-50">
+                            <span wire:loading.remove wire:target="updateBlog">Wijzigingen Opslaan</span>
+                            <span wire:loading wire:target="updateBlog">Verwerken...</span>
                         </button>
                     </div>
                 </form>
@@ -130,7 +134,7 @@
     </script>
 
     <style>
-        .trix-content { width: 100%; }
+        .trix-content { width: 100%; border-radius: 0.375rem !important; }
         trix-toolbar .trix-button--icon-attach { display: none; }
     </style>
 </div>

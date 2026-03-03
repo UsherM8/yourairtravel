@@ -4,7 +4,8 @@
     {{-- Afbeelding --}}
     <a href="{{ route('public.blog.show', $blog->id) }}" class="relative block overflow-hidden aspect-[16/9] flex-shrink-0">
         @if($blog->image_path)
-            <img src="{{ asset('storage/' . $blog->image_path) }}"
+            {{-- HOSTINGER ROUTING FIX --}}
+            <img src="{{ file_exists(public_path('uploads/' . $blog->image_path)) ? asset('uploads/' . $blog->image_path) : asset('storage/' . $blog->image_path) }}"
                  alt="{{ $blog->title }}"
                  class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
         @else
@@ -22,7 +23,8 @@
     <div class="p-6 flex flex-col flex-grow">
         {{-- Tags --}}
         <div class="flex flex-wrap gap-2 mb-3">
-            @foreach(array_slice($blog->tags ?? [], 0, 2) as $tag)
+            @php $tags = is_array($blog->tags) ? $blog->tags : json_decode($blog->tags, true) ?? []; @endphp
+            @foreach(array_slice($tags, 0, 2) as $tag)
                 <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-600">
                     {{ $tag }}
                 </span>

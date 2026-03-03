@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\Deal;
 use App\Models\DealImage;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File; // <-- Toegevoegd voor de copy & delete fix
 
 class EditDeal extends Component
 {
@@ -137,29 +137,13 @@ class EditDeal extends Component
         return $map[$country] ?? 'Overig';
     }
 
-    protected $rules = [
-        'title' => 'required|min:5',
-        'arrival_city' => 'required', // Zorg dat deze op 'required' staat!
-        'arrival_country' => 'required',
-        'arrival_continent' => 'required', // <-- TOEVOEGING
-        'price' => 'required|numeric',
-        'discounted_price' => 'nullable|numeric',
-        'referral_url' => 'required|url',
-        'duration_days' => 'nullable|integer|min:1',
-
-        'new_images' => 'max:10',
-        'new_images.*' => 'image|max:71680',
-    ];
-
     public function mount(Deal $deal)
     {
         $this->deal = $deal;
         $this->deal_id = $deal->id;
 
-        // Zorg dat de view weet of we archiveren of activeren
         $this->is_active = $deal->is_active;
 
-        // Vul alle velden met de bestaande data
         $this->title = $deal->title;
         $this->description = $deal->description;
         $this->price = $deal->price;
@@ -171,21 +155,17 @@ class EditDeal extends Component
         $this->departure_country = $deal->departure_country;
         $this->arrival_city = $deal->arrival_city;
         $this->arrival_country = $deal->arrival_country;
-        $this->arrival_continent = $deal->arrival_continent; // <-- TOEVOEGING
+        $this->arrival_continent = $deal->arrival_continent;
 
         $this->departure_date = $deal->departure_date ? \Carbon\Carbon::parse($deal->departure_date)->format('Y-m-d') : null;
 
-        // Laad de bestaande reisduur in
         $this->duration_days = $deal->duration_days;
 
-        // Let op: tags is een JSON veld, we zorgen dat het als array in het formulier komt
         $this->tags = $deal->tags ?? [];
 
-        // Haal bestaande foto's op
         $this->existing_images = $deal->images;
     }
 
-    // AUTOMATISCHE INVULLING BIJ WIJZIGING
     public function updated($propertyName)
     {
         if ($propertyName === 'departure_city') {
@@ -197,12 +177,11 @@ class EditDeal extends Component
         }
 
         if ($propertyName === 'arrival_country') {
-            $this->arrival_continent = $this->getContinentMapping($this->arrival_country); // <-- TOEVOEGING
+            $this->arrival_continent = $this->getContinentMapping($this->arrival_country);
             $this->arrival_city = null;
         }
     }
 
-    // Functie voor de Archiveer knop
     public function toggleArchive()
     {
         $deal = Deal::find($this->deal_id);
@@ -219,7 +198,13 @@ class EditDeal extends Component
     public function removeExistingImage($imageId)
     {
         $image = DealImage::findOrFail($imageId);
-        Storage::disk('public')->delete($image->path);
+
+        // Hostinger Proof Verwijderen
+        $filePath = public_path('uploads/' . $image->path);
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
         $image->delete();
 
         $this->existing_images = DealImage::where('deal_id', $this->deal_id)->get();
@@ -227,51 +212,68 @@ class EditDeal extends Component
 
     public function updateDeal()
     {
-        $this->validate();
-
-        // 1. Update de deal
-        $this->deal->update([
-            'title' => $this->title,
-            'description' => $this->description,
-            'price' => $this->price,
-            'discounted_price' => $this->discounted_price ?: null,
-            'referral_url' => $this->referral_url,
-            'airline' => $this->airline,
-
-            'departure_city' => $this->departure_city,
-            'departure_country' => $this->departure_country,
-            'arrival_city' => $this->arrival_city,
-            'arrival_country' => $this->arrival_country,
-            'arrival_continent' => $this->arrival_continent, // <-- TOEVOEGING
-
-            'departure_date' => $this->departure_date ?: null,
-            'duration_days' => $this->duration_days ?: null,
-
-            'tags' => $this->tags,
+        $this->validate([
+            'title'             => 'required|min:5',
+            'price'             => 'required|numeric',
+            'discounted_price'  => 'nullable|numeric',
+            'departure_city'    => 'required',
+            'arrival_city'      => 'required',
+            'arrival_country'   => 'required',
+            'arrival_continent' => 'required',
+            'departure_date'    => 'required|date',
+            'duration_days'     => 'required|integer|min:1',
+            'referral_url'      => 'required|url',
+            'new_images.*'      => 'nullable|image|max:20480',
         ]);
 
-        // 2. Sla nieuwe foto's op (als die er zijn)
-        if (!empty($this->new_images)) {
-            $heeftAlHoofdfoto = $this->existing_images->where('is_primary', true)->count() > 0;
+        $deal = Deal::findOrFail($this->deal_id); // FIX: was dealId ipv deal_id
 
-            foreach ($this->new_images as $index => $photo) {
-                $path = $photo->store('deals', 'public');
+        $deal->update([
+            'title'             => $this->title,
+            'price'             => $this->price,
+            'discounted_price'  => $this->discounted_price,
+            'departure_city'    => $this->departure_city,
+            'departure_country' => $this->departure_country,
+            'arrival_city'      => $this->arrival_city,
+            'arrival_country'   => $this->arrival_country,
+            'arrival_continent' => $this->arrival_continent,
+            'airline'           => $this->airline,
+            'departure_date'    => $this->departure_date,
+            'duration_days'     => $this->duration_days,
+            'description'       => $this->description,
+            'referral_url'      => $this->referral_url,
+            'tags'              => $this->tags,
+            'is_active'         => $this->is_active,
+        ]);
 
-                $isHoofdfoto = false;
-                if (!$heeftAlHoofdfoto && $index === 0) {
-                    $isHoofdfoto = true;
-                    $heeftAlHoofdfoto = true;
-                }
+        if ($this->new_images) {
+            $destinationPath = public_path('uploads');
 
-                DealImage::create([
-                    'deal_id' => $this->deal->id,
-                    'path' => $path,
-                    'is_primary' => $isHoofdfoto,
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            foreach ($this->new_images as $index => $image) {
+                $filename = time() . '-upd-' . $index . '-' . $image->getClientOriginalName();
+
+                // Livewire-proof kopieren
+                File::copy(
+                    $image->getRealPath(),
+                    $destinationPath . '/' . $filename
+                );
+
+                $deal->images()->create([
+                    'path'       => $filename,
+                    'is_primary' => (count($this->existing_images) === 0 && $index === 0),
                 ]);
+
+                if (!$deal->image_path) {
+                    $deal->update(['image_path' => $filename]);
+                }
             }
         }
 
-        session()->flash('message', 'Deal succesvol bijgewerkt! ✏️');
+        session()->flash('message', 'Deal succesvol bijgewerkt! ✈️');
         return redirect()->route('admin.deals');
     }
 

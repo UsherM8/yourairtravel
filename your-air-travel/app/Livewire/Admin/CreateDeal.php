@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Deal;
 use App\Models\DealImage;
+use Illuminate\Support\Facades\File; // <-- Toegevoegd voor de copy fix
 
 class CreateDeal extends Component
 {
@@ -109,64 +110,83 @@ class CreateDeal extends Component
         $this->is_active = !$this->is_active;
     }
 
-    // --- HOOKS ---
-
-    // Deze vuurt als departure_city (wire:model.live="departure_city") wijzigt
     public function updatedDepartureCity($value)
     {
         $this->departure_country = $this->vertrekLocaties[$value] ?? null;
     }
 
-    // Deze vuurt als arrival_country (wire:model.live="arrival_country") wijzigt
     public function updatedArrivalCountry($value)
     {
         $this->arrival_continent = $this->getContinentMapping($value);
-        $this->arrival_city = null; // Reset stad als land verandert
+        $this->arrival_city = null;
     }
 
     public function saveDeal()
     {
         $this->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|min:5',
             'price' => 'required|numeric',
+            'discounted_price' => 'nullable|numeric',
             'departure_city' => 'required',
-            'arrival_country' => 'required',
+            'departure_country' => 'required',
             'arrival_city' => 'required',
+            'arrival_country' => 'required',
             'arrival_continent' => 'required',
+            'airline' => 'nullable',
             'departure_date' => 'required|date',
-            'duration_days' => 'required|integer',
+            'duration_days' => 'required|integer|min:1',
+            'description' => 'required',
             'referral_url' => 'required|url',
+            'images.*' => 'image|max:20480', // 20MB limiet
         ]);
 
         $deal = Deal::create([
             'title' => $this->title,
-            'description' => $this->description,
             'price' => $this->price,
             'discounted_price' => $this->discounted_price,
-            'airline' => $this->airline,
             'departure_city' => $this->departure_city,
-            'arrival_country' => $this->arrival_country,
+            'departure_country' => $this->departure_country,
             'arrival_city' => $this->arrival_city,
+            'arrival_country' => $this->arrival_country,
             'arrival_continent' => $this->arrival_continent,
+            'airline' => $this->airline,
             'departure_date' => $this->departure_date,
             'duration_days' => $this->duration_days,
-            'tags' => $this->tags,
+            'description' => $this->description,
             'referral_url' => $this->referral_url,
+            'tags' => $this->tags,
             'is_active' => $this->is_active,
         ]);
 
-        if (!empty($this->images)) {
+        if ($this->images) {
+            $destinationPath = public_path('uploads');
+
+            // Map check!
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
             foreach ($this->images as $index => $image) {
-                $path = $image->store('deals', 'public');
-                DealImage::create([
-                    'deal_id' => $deal->id,
-                    'path' => $path,
-                    'is_primary' => $index === 0,
+                $filename = time() . '-' . $index . '-' . $image->getClientOriginalName();
+
+                // Livewire-Proof Copy
+                File::copy(
+                    $image->getRealPath(),
+                    $destinationPath . '/' . $filename
+                );
+
+                if ($index === 0) {
+                    $deal->update(['image_path' => $filename]);
+                }
+
+                $deal->images()->create([
+                    'path' => $filename,
+                    'is_primary' => ($index === 0),
                 ]);
             }
         }
 
-        session()->flash('message', 'Deal succesvol aangemaakt!');
+        session()->flash('message', 'Deal succesvol online gezet! ✈️');
         return redirect()->route('admin.deals');
     }
 
