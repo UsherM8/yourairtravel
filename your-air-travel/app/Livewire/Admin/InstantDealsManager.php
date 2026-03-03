@@ -54,10 +54,11 @@ class InstantDealsManager extends Component
         $availableDeals = collect();
         if ($this->activeSlot !== null) {
             $availableDeals = Deal::where('is_active', true)
-                ->whereNull('instant_deal_slot') // <-- DEZE REGEL ZORGT DAT GEKOZEN DEALS VERDWIJNEN
+                ->whereNull('instant_deal_slot') // Zorgt dat gekozen deals verdwijnen
                 ->where(function($q) {
                     $q->where('title', 'like', '%' . $this->search . '%')
-                      ->orWhere('destination', 'like', '%' . $this->search . '%');
+                      ->orWhere('arrival_city', 'like', '%' . $this->search . '%')
+                      ->orWhere('arrival_country', 'like', '%' . $this->search . '%');
                 })
                 ->take(15)
                 ->get();
@@ -67,6 +68,6 @@ class InstantDealsManager extends Component
             'slots' => range(1, 8), // Genereert een array [1, 2, 3, 4, 5, 6, 7, 8]
             'slottedDeals' => $slottedDeals,
             'availableDeals' => $availableDeals,
-        ])->layout('layouts.app'); // <-- HIER IS DE FIX TOEGEVOEGD
+        ])->layout('layouts.app');
     }
 }
