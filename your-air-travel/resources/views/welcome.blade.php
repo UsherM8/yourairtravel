@@ -20,8 +20,13 @@
     </div>
 
     {{-- DE STATISCHE ETALAGE (Last-minutes, Zon, Vluchten) --}}
-    <div class="relative z-10 bg-gray-50 pt-12 pb-20">
+    <div class="relative z-10 bg-gray-50 pt-12 pb-12">
         <livewire:public.home-deals />
+    </div>
+
+    {{-- 🎲 BESTEMMING ROULETTE (Nieuw!) --}}
+    <div class="relative z-10 bg-white py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
+        <livewire:public.deal-roulette />
     </div>
 
 @endcomponent

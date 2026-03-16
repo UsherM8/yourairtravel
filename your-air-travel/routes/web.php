@@ -21,6 +21,8 @@ use App\Livewire\Auth\SetPassword;
 use App\Livewire\Public\ShowDeal;
 use App\Livewire\Public\ShowBlog;
 use App\Livewire\Public\BlogList;
+use App\Livewire\Public\DealRoulette;
+use App\Livewire\Public\BookConsultation;
 
 // ==========================================
 // 1. PUBLIEKE ROUTES (Voor elke bezoeker)
@@ -39,8 +41,9 @@ Route::get('/deal/{deal}/boek', function (Deal $deal) {
     return redirect($deal->referral_url ?? '/');
 })->name('public.deal.book');
 
-Route::get('/blog', BlogList::class)->name('public.blogs');
+Route::get('/blog', BlogList::class)->name(name: 'public.blogs');
 Route::get('/blog/{id}', ShowBlog::class)->name('public.blog.show');
+Route::get('/persoonlijk-reisadvies', BookConsultation::class)->name('consultation');
 
 // Statische pagina's
 Route::view('/over-ons', 'over-ons')->name('over-ons');

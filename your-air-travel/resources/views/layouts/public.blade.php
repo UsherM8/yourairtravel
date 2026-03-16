@@ -42,12 +42,14 @@
     {{-- GLOBALE HEADER --}}
     <nav x-data="{ mobileMenuOpen: false }" class="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div class="flex justify-between items-center h-16 lg:h-20">
+            {{-- FIX: De hoogte van de navbar is vergroot (h-20 lg:h-28) om ruimte te maken voor het grote logo --}}
+            <div class="flex justify-between items-center h-20 lg:h-28">
 
                 {{-- 1. KLIKBAAR LOGO --}}
                 <div class="flex-shrink-0 flex items-center">
                     <a href="/" class="group">
-                        <img src="{{ asset('images/logo.png') }}" alt="YourAirTravel Logo" class="h-10 lg:h-16 w-auto group-hover:scale-105 transition-transform drop-shadow-sm">
+                        {{-- FIX: Logo stuk groter gemaakt (h-16 op mobiel, h-24 op desktop) --}}
+                        <img src="{{ asset('images/logo.png') }}" alt="YourAirTravel Logo" class="h-16 lg:h-24 w-auto group-hover:scale-105 transition-transform drop-shadow-sm">
                     </a>
                 </div>
 
@@ -179,6 +181,10 @@
 
                     <a href="{{ route('search.results') }}" class="hover:text-[#2596be] transition-colors flex items-center h-full">Vliegtickets</a>
                     <a href="{{ route('public.blogs') }}" class="hover:text-[#2596be] transition-colors flex items-center h-full">Blogs</a>
+
+                    {{-- 🟢 HIER IS JOUW NIEUWE LINK IN DEZELFDE STIJL 🟢 --}}
+                    <a href="{{ route('consultation') }}" class="hover:text-[#2596be] transition-colors flex items-center h-full">Reisadvies</a>
+
                     <a href="{{ route('over-ons') }}" class="flex items-center h-full text-[#2596be] hover:text-[#e5764b] transition-colors group">
                         <svg class="w-4 h-4 mr-1.5 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Over Ons
@@ -186,7 +192,6 @@
                 </div>
 
                 {{-- 3. HAMBURGER MENU KNOP --}}
-                {{-- FIX: De desktop-hide-force klasse verbergt deze meedogenloos op laptop/pc --}}
                 <div class="flex items-center desktop-hide-force">
                     <button @click="mobileMenuOpen = ! mobileMenuOpen" class="text-gray-500 hover:text-[#2596be] p-2 focus:outline-none">
                         <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -209,6 +214,10 @@
                 <a href="{{ route('search.results') }}" class="text-xl font-black text-gray-900 hover:text-[#2596be]">Alle Vakanties</a>
                 <a href="{{ route('search.results') }}" class="text-xl font-black text-gray-900 hover:text-[#2596be]">Vliegtickets</a>
                 <a href="{{ route('public.blogs') }}" class="text-xl font-black text-gray-900 hover:text-[#2596be]">Reisblog</a>
+
+                {{-- 🟢 HIER IS DE LINK VOOR MOBIEL 🟢 --}}
+                <a href="{{ route('consultation') }}" class="text-xl font-black text-gray-900 hover:text-[#2596be]">Reisadvies</a>
+
                 <a href="{{ route('over-ons') }}" class="text-xl font-black text-[#2596be] mt-4 pt-4 border-t border-gray-100">Over Ons</a>
             </div>
         </div>
