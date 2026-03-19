@@ -29,7 +29,7 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         ARGS: "-avz"
-        SOURCE: "./"
+        SOURCE: "yourairtravel/"
         REMOTE_HOST: ${{ secrets.HOST_IP }}
         REMOTE_USER: ${{ secrets.SSH_USER }}
         REMOTE_PORT: ${{ secrets.SSH_PORT }}
