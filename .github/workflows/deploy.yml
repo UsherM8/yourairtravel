@@ -20,6 +20,7 @@ jobs:
 
     - name: Install & Build NPM Dependencies
       run: |
+        cd your-air-travel
         npm install
         npm run build
 
