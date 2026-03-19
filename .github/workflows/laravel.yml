@@ -11,15 +11,15 @@ on:
 jobs:
   laravel-tests:
     runs-on: ubuntu-latest
+    
+    # This line tells GitHub that YOUR_FOLDER_NAME is where the code lives
+    defaults:
+      run:
+        working-directory: ./your-air-travel 
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    # --- DEBUG STEP: This will show us if composer.json exists ---
-    - name: Check Folder Structure
-      run: ls -R
-    # -------------------------------------------------------------
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
