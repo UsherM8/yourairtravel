@@ -16,10 +16,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # --- DEBUG STEP: This will show us if composer.json exists ---
+    - name: Check Folder Structure
+      run: ls -R
+    # -------------------------------------------------------------
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2' # Updated from 8.0
+        php-version: '8.2'
         extensions: mbstring, dom, curl, libxml, mysql, sqlite, bcmath
         coverage: none
 
@@ -27,7 +32,6 @@ jobs:
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
     - name: Install Dependencies
-      # Removed -q so you can see errors if it fails again
       run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
     - name: Generate key
