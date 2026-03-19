@@ -33,7 +33,7 @@ jobs:
         REMOTE_HOST: ${{ secrets.HOST_IP }}
         REMOTE_USER: ${{ secrets.SSH_USER }}
         REMOTE_PORT: ${{ secrets.SSH_PORT }}
-        TARGET: "/domains/yourairtravel.nl/public_html/" 
+        TARGET: "domains/yourairtravel.nl/public_html/" 
         EXCLUDE: "/.env, /.htaccess, /storage/logs/, /storage/app/public/, /public/uploads/, /.git/, /node_modules/"
 
     - name: Run Artisan Commands on Hostinger
@@ -44,7 +44,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          cd /domains/yourairtravel.nl/public_html/
+          cd domains/yourairtravel.nl/public_html/
           
           # 1. Zorg dat de upload mappen altijd bestaan (veilig dankzij -p)
           mkdir -p public/uploads
