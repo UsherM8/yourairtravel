@@ -1,0 +1,66 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get latest code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install & Build NPM Dependencies
+      run: |
+        npm install
+        npm run build
+
+    - name: Sync files to Hostinger
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        ARGS: "-avz"
+        SOURCE: "./"
+        REMOTE_HOST: ${{ secrets.HOST_IP }}
+        REMOTE_USER: ${{ secrets.SSH_USER }}
+        REMOTE_PORT: ${{ secrets.SSH_PORT }}
+        TARGET: "/domains/yourairtravel.nl/public_html/" 
+        EXCLUDE: "/.env, /.htaccess, /storage/logs/, /storage/app/public/, /public/uploads/, /.git/, /node_modules/"
+
+    - name: Run Artisan Commands on Hostinger
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST_IP }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          cd /domains/yourairtravel.nl/public_html/
+          
+          # 1. Zorg dat de upload mappen altijd bestaan (veilig dankzij -p)
+          mkdir -p public/uploads
+          mkdir -p storage/app/public
+          mkdir -p storage/framework/cache
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          
+          # 2. Installeer PHP dependencies
+          composer install --optimize-autoloader --no-dev
+          
+          # 3. Zorg dat de storage link klopt (voor afbeeldingen)
+          php artisan storage:link
+          
+          # 4. Database updaten
+          php artisan migrate --force
+          
+          # 5. Cache opschonen en herbouwen
+          php artisan optimize:clear
+          php artisan optimize
