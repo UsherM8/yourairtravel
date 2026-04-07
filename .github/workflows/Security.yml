@@ -1,0 +1,45 @@
+name: Security Pipeline
+
+permissions:
+  contents: read
+  issues: write 
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  security-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # --- SHOWROOM: Static Program Analysis (Trivy) ---
+      - name: Dependency & Secret Scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          # We scannen de hele root '.' om er zeker van te zijn dat hij niets mist
+          scan-ref: '.' 
+          # Verhoog de gevoeligheid voor je onderzoek naar 'Secrets Sprawl'
+          security-checks: 'vuln,secret' 
+          # We voegen 'MEDIUM' toe; vaak vallen dependency-lekken onder Medium/High
+          severity: 'CRITICAL,HIGH,MEDIUM' 
+          format: 'table'
+          exit-code: '0' 
+          # Zorg dat de database altijd vers is voor de meest recente 2026-lekken
+          cache-policy: 'none' 
+
+      # --- VOORBEREIDING VOOR ZAP ---
+      - name: Fix ZAP Permissions
+        run: chmod -R 777 .
+
+      # --- LAB: Security Tests (OWASP ZAP) ---
+      - name: DAST Scan (OWASP ZAP)
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'https://yourairtravel.nl'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fail_action: false
